@@ -1,0 +1,21 @@
+{
+  "name": "bookmark-plugin",
+  "version": "0.1.0",
+  "description": "A Chrome bookmark manager extension written in TypeScript.",
+  "main": "src/background.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "chrome-extension",
+    "bookmark",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.1.4",
+    "typescript": "^5.0.0"
+  }
+}
