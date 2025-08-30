@@ -2,12 +2,12 @@
   "manifest_version": 3,
   "name": "Bookmark Plugin",
   "version": "0.1.0",
-  "description": "A Chrome bookmark manager extension written in TypeScript.",
+  "description": "A Chrome bookmark manager extension written in React + TypeScript with Vite.",
   "background": {
-    "service_worker": "dist/background.js"
+    "service_worker": "./background.js"
   },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "./index.html"
   },
   "permissions": ["bookmarks", "storage"],
   "host_permissions": ["<all_urls>"]
