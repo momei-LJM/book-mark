@@ -21,6 +21,7 @@ export async function injectStyles(styleContainer: ShadowRoot) {
     styleContainer.appendChild(tailwindLink)
   }
 }
+
 /**
  * Create a shadow root for the extension
  * @returns {Object} - The shadow root, react container, and style container

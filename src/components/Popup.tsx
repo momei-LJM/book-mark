@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { requestBookmarkTree } from '../core/message'
+import { getFaviconUrl, handleFaviconError } from '../core/favicon'
 
 interface BookmarkNode {
   id: string
@@ -24,26 +26,16 @@ interface BookmarkNode {
 const Popup: React.FC = () => {
   const [bookmarks, setBookmarks] = useState<BookmarkNode[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // 发送消息到background获取书签
-    chrome.runtime.sendMessage({ action: 'get-bookmarks' }, response => {
+    requestBookmarkTree().then(response => {
+      console.log('Received bookmarks:', response.bookmarks)
+
       if (response && response.bookmarks) {
         setBookmarks(response.bookmarks as BookmarkNode[])
       }
-      setIsLoading(false)
     })
   }, [])
-
-  const getFaviconUrl = (url: string): string => {
-    try {
-      const domain = new URL(url).hostname
-      return `https://www.google.com/s2/favicons?domain=${domain}`
-    } catch {
-      return ''
-    }
-  }
 
   // 统计信息
   const stats = useMemo(() => {
@@ -125,10 +117,7 @@ const Popup: React.FC = () => {
                   src={getFaviconUrl(node.url)}
                   alt=''
                   className='w-4 h-4 flex-shrink-0'
-                  onError={e => {
-                    e.currentTarget.src =
-                      'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiAxMEgxMEwxMyAxM1YxMEgxNVYxM0gxMFYxMEgxMloiIGZpbGw9IiM5Q0E0QUYiLz4KPC9zdmc+'
-                  }}
+                  onError={e => handleFaviconError(e, node.url || '')}
                 />
                 <div className='flex-1 min-w-0'>
                   <button
@@ -175,19 +164,6 @@ const Popup: React.FC = () => {
         return [element]
       })
       .flat()
-  }
-
-  if (isLoading) {
-    return (
-      <Card className='w-96'>
-        <CardContent className='flex items-center justify-center p-8'>
-          <div className='text-center'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2'></div>
-            <p className='text-sm text-gray-500'>加载书签中...</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
   }
 
   return (
