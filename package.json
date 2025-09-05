@@ -4,7 +4,7 @@
   "description": "A Chrome bookmark manager extension written in React + TypeScript with Vite.",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch ./build.ts",
+    "dev": "tsx ./build.ts",
     "build": "tsx ./build.ts",
     "preview": "vite preview",
     "watch": "vite build --watch",

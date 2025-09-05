@@ -1,5 +1,5 @@
 /* Content script styles */
-@import './styles/global.css';
+@import './global.css';
 
 /* Shadow DOM specific styles */
 :host {

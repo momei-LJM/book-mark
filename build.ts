@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react'
 import { build, InlineConfig } from 'vite'
-import chokidar from 'chokidar'
+import { createFileWatcher } from './src/node/watcher'
 const baseOptions = (): InlineConfig => ({
   root: process.cwd(),
   base: '.',
@@ -30,7 +30,7 @@ const buildOptions: InlineConfig[] = [
       cssMinify: false,
       lib: {
         name: 'content',
-        entry: 'src/content.tsx',
+        entry: 'src/entry/content.tsx',
         formats: ['umd'],
         fileName: _format => `content.js`,
         cssFileName: `content`,
@@ -47,7 +47,7 @@ const buildOptions: InlineConfig[] = [
       outDir: 'dist',
       lib: {
         name: 'background',
-        entry: 'src/background.ts',
+        entry: 'src/entry/background.ts',
         formats: ['es'],
         fileName: _format => `background.js`,
       },
@@ -61,7 +61,5 @@ const buildAssets = async () => {
   }
 }
 
-chokidar.watch('./src').on('all', (event, path) => {
-  console.log(event, path)
-  buildAssets()
-})
+buildAssets()
+createFileWatcher(buildAssets)

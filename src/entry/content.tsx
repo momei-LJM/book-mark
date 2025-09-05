@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import hotkeys from 'hotkeys-js'
-import Popup from './components/Popup'
-import './content.css'
+import Popup from '../components/Popup'
+import '../styles/content.css'
 
 const ContentApp: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    console.log(1111111)
-
     // 监听快捷键 - 使用Ctrl+Alt+B避免与浏览器冲突
     hotkeys('ctrl+alt+c, command+option+c', event => {
       event.preventDefault()
       setIsVisible(!isVisible)
-      console.log('Bookmark panel toggled via hotkey')
+      console.log('Bookmark panel toggled hotkey')
     })
 
     // 监听来自background的命令
