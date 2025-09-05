@@ -73,20 +73,33 @@ const createShadowRoot = () => {
 }
 
 // 注入Tailwind和组件样式到Shadow DOM
-const injectStyles = (styleContainer: HTMLElement) => {
-  // 注入Tailwind CSS
-  const tailwindLink = document.createElement('link')
-  tailwindLink.rel = 'stylesheet'
-  tailwindLink.href = chrome.runtime.getURL('content.css')
-  styleContainer.appendChild(tailwindLink)
+const injectStyles = async (styleContainer: HTMLElement) => {
+  try {
+    // 获取CSS内容并直接注入
+    const cssUrl = chrome.runtime.getURL('content.css')
+    const response = await fetch(cssUrl)
+    const cssText = await response.text()
+
+    // 创建style元素并注入CSS
+    const styleElement = document.createElement('style')
+    styleElement.textContent = cssText
+    styleContainer.appendChild(styleElement)
+  } catch (error) {
+    console.error('Failed to inject styles:', error)
+    // 备用方案：使用link标签
+    const tailwindLink = document.createElement('link')
+    tailwindLink.rel = 'stylesheet'
+    tailwindLink.href = chrome.runtime.getURL('content.css')
+    styleContainer.appendChild(tailwindLink)
+  }
 }
 
 // 初始化扩展
-const initExtension = () => {
+const initExtension = async () => {
   const { reactContainer, styleContainer } = createShadowRoot()
 
   // 注入样式
-  injectStyles(styleContainer)
+  await injectStyles(styleContainer)
 
   // 创建React根并渲染应用
   const root = createRoot(reactContainer)
