@@ -4,8 +4,8 @@
   "description": "A Chrome bookmark manager extension written in React + TypeScript with Vite.",
   "type": "module",
   "scripts": {
-    "dev": "vite build --watch",
-    "build": "vite build",
+    "dev": "tsx watch ./build.ts",
+    "build": "tsx ./build.ts",
     "preview": "vite preview",
     "watch": "vite build --watch",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -29,14 +29,17 @@
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "hotkeys-js": "^3.13.15",
     "lucide-react": "^0.542.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-draggable": "^4.5.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.4",
+    "@types/node": "^24.3.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.2",
@@ -50,6 +53,7 @@
     "postcss": "^8.4.32",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.0",
+    "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.15.0",
     "vite": "npm:rolldown-vite@latest"

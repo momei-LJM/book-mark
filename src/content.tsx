@@ -1,0 +1,60 @@
+import React, { useState, useEffect } from 'react'
+import { createRoot } from 'react-dom/client'
+import Draggable from 'react-draggable'
+import hotkeys from 'hotkeys-js'
+import Popup from './components/Popup'
+import './content.css'
+
+const ContentApp: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    console.log(1111111)
+
+    // 监听快捷键 - 使用Ctrl+Alt+B避免与浏览器冲突
+    hotkeys('ctrl+alt+c, command+option+c', event => {
+      event.preventDefault()
+      setIsVisible(!isVisible)
+      console.log('Bookmark panel toggled via hotkey')
+    })
+
+    // 监听来自background的命令
+    chrome.runtime.onMessage.addListener(message => {
+      if (message.action === 'toggle-bookmark-panel') {
+        setIsVisible(!isVisible)
+      }
+    })
+
+    return () => {
+      hotkeys.unbind('ctrl+alt+b, command+option+b')
+    }
+  }, [isVisible])
+
+  if (!isVisible) return null
+  return (
+    <Draggable handle='.drag-handle'>
+      <div className='fixed top-20 right-4 z-50 bg-white border border-gray-300 rounded-lg shadow-lg max-w-md w-full max-h-96 overflow-hidden'>
+        <div className='drag-handle bg-gray-100 px-4 py-2 cursor-move flex items-center justify-between'>
+          <span className='font-semibold'>Bookmark Manager</span>
+          <button
+            onClick={() => setIsVisible(false)}
+            className='text-gray-500 hover:text-gray-700'
+          >
+            ✕
+          </button>
+        </div>
+        <div className='p-4 overflow-auto max-h-80'>
+          <Popup />
+        </div>
+      </div>
+    </Draggable>
+  )
+}
+
+// 注入到页面
+const container = document.createElement('div')
+container.id = 'bookmark-extension-root'
+document.body.appendChild(container)
+
+const root = createRoot(container)
+root.render(<ContentApp />)

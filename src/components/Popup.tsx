@@ -27,8 +27,11 @@ const Popup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    chrome.bookmarks.getTree((tree: chrome.bookmarks.BookmarkTreeNode[]) => {
-      setBookmarks(tree as BookmarkNode[])
+    // 发送消息到background获取书签
+    chrome.runtime.sendMessage({ action: 'get-bookmarks' }, response => {
+      if (response && response.bookmarks) {
+        setBookmarks(response.bookmarks as BookmarkNode[])
+      }
       setIsLoading(false)
     })
   }, [])
@@ -128,15 +131,17 @@ const Popup: React.FC = () => {
                   }}
                 />
                 <div className='flex-1 min-w-0'>
-                  <a
-                    href={node.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-sm font-medium text-gray-900 hover:text-blue-600 truncate block'
+                  <button
+                    onClick={() => {
+                      if (node.url) {
+                        chrome.tabs.create({ url: node.url })
+                      }
+                    }}
+                    className='text-sm font-medium text-gray-900 hover:text-blue-600 truncate block text-left w-full'
                     title={node.title || node.url}
                   >
                     {node.title || node.url}
-                  </a>
+                  </button>
                   <p className='text-xs text-gray-500 truncate'>{node.url}</p>
                 </div>
                 <Button

@@ -8,3 +8,13 @@ chrome.runtime.onInstalled.addListener(() => {
     console.log('当前书签树:', bookmarkTreeNodes);
   });
 });
+
+// 处理来自content script的消息
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+  if (request.action === 'get-bookmarks') {
+    chrome.bookmarks.getTree((bookmarkTreeNodes) => {
+      sendResponse({ bookmarks: bookmarkTreeNodes });
+    });
+    return true; // 保持消息通道开放
+  }
+});

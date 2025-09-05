@@ -4,11 +4,19 @@
   "version": "0.1.0",
   "description": "A Chrome bookmark manager extension written in React + TypeScript with Vite.",
   "background": {
-    "service_worker": "./background.js"
+    "service_worker": "./background.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "./index.html"
   },
-  "permissions": ["bookmarks", "storage"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./content.js"],
+      "css": ["./content.css"]
+    }
+  ],
+  "permissions": ["bookmarks", "storage", "activeTab", "tabs"],
   "host_permissions": ["<all_urls>"]
 }
