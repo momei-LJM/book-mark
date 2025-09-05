@@ -78,7 +78,7 @@ const injectStyles = async (styleContainer: HTMLElement) => {
     // 获取CSS内容并直接注入
     const cssUrl = chrome.runtime.getURL('content.css')
     const response = await fetch(cssUrl)
-    const cssText = await response.text()
+    const cssText = (await response.text()).replace(':root', ':host')
 
     // 创建style元素并注入CSS
     const styleElement = document.createElement('style')

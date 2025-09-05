@@ -1,43 +1,13 @@
 /* Content script styles */
-@import "tailwindcss";
+@import './styles/global.css';
 
 /* Shadow DOM specific styles */
 :host {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  /* 确保所有Tailwind CSS变量在Shadow DOM中可用 */
-  --tw-translate-x: 0;
-  --tw-translate-y: 0;
-  --tw-translate-z: 0;
-  --tw-rotate-x: initial;
-  --tw-rotate-y: initial;
-  --tw-rotate-z: initial;
-  --tw-skew-x: initial;
-  --tw-skew-y: initial;
-  --tw-space-y-reverse: 0;
-  --tw-border-style: solid;
-  --tw-leading: initial;
-  --tw-font-weight: initial;
-  --tw-tracking: initial;
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-color: initial;
-  --tw-shadow-alpha: 100%;
-  --tw-inset-shadow: 0 0 #0000;
-  --tw-inset-shadow-color: initial;
-  --tw-inset-shadow-alpha: 100%;
-  --tw-ring-color: initial;
-  --tw-ring-shadow: 0 0 #0000;
-  --tw-inset-ring-color: initial;
-  --tw-inset-ring-shadow: 0 0 #0000;
-  --tw-ring-inset: initial;
-  --tw-ring-offset-width: 0px;
-  --tw-ring-offset-color: #fff;
-  --tw-ring-offset-shadow: 0 0 #0000;
-  --tw-outline-style: solid;
 }
 
 /* 确保所有元素都继承这些变量 */
@@ -45,35 +15,4 @@
 :host *:before,
 :host *:after {
   box-sizing: border-box;
-  
-  /* 继承Tailwind变量 */
-  --tw-translate-x: inherit;
-  --tw-translate-y: inherit;
-  --tw-translate-z: inherit;
-  --tw-rotate-x: inherit;
-  --tw-rotate-y: inherit;
-  --tw-rotate-z: inherit;
-  --tw-skew-x: inherit;
-  --tw-skew-y: inherit;
-  --tw-space-y-reverse: inherit;
-  --tw-border-style: inherit;
-  --tw-leading: inherit;
-  --tw-font-weight: inherit;
-  --tw-tracking: inherit;
-  --tw-shadow: inherit;
-  --tw-shadow-color: inherit;
-  --tw-shadow-alpha: inherit;
-  --tw-inset-shadow: inherit;
-  --tw-inset-shadow-color: inherit;
-  --tw-inset-shadow-alpha: inherit;
-  --tw-ring-color: inherit;
-  --tw-ring-shadow: inherit;
-  --tw-inset-ring-color: inherit;
-  --tw-inset-ring-shadow: inherit;
-  --tw-ring-inset: inherit;
-  --tw-ring-offset-width: inherit;
-  --tw-ring-offset-color: inherit;
-  --tw-ring-offset-shadow: inherit;
-  --tw-outline-style: inherit;
 }
-    

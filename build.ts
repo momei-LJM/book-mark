@@ -1,4 +1,3 @@
-import tailwindcssPlugin from '@tailwindcss/postcss'
 import react from '@vitejs/plugin-react'
 import { build, InlineConfig } from 'vite'
 
@@ -11,11 +10,6 @@ const baseOptions = (): InlineConfig => ({
       '@': '/src',
     },
   },
-  css: {
-    postcss: {
-      plugins: [tailwindcssPlugin],
-    },
-  },
 })
 
 const buildOptions: InlineConfig[] = [
@@ -24,13 +18,16 @@ const buildOptions: InlineConfig[] = [
     build: {
       emptyOutDir: true,
       outDir: 'dist',
+      cssMinify: false,
     },
   },
   {
     ...baseOptions(),
+    plugins: [react()],
     build: {
       emptyOutDir: false,
       outDir: 'dist',
+      cssMinify: false,
       lib: {
         name: 'content',
         entry: 'src/content.tsx',
