@@ -32,7 +32,7 @@ const ContentApp: React.FC = () => {
 
   if (!isVisible) return null
   return (
-    <Draggable handle='.drag-handle'>
+    <Draggable>
       <div className='fixed top-20 right-4 z-50 bg-white border border-gray-300 rounded-lg shadow-lg max-w-md w-full max-h-96 overflow-hidden'>
         <div className='drag-handle bg-gray-100 px-4 py-2 cursor-move flex items-center justify-between'>
           <span className='font-semibold'>Bookmark Manager</span>
@@ -51,10 +51,64 @@ const ContentApp: React.FC = () => {
   )
 }
 
-// 注入到页面
-const container = document.createElement('div')
-container.id = 'bookmark-extension-root'
-document.body.appendChild(container)
+// 创建Shadow DOM容器
+const createShadowRoot = () => {
+  const container = document.createElement('div')
+  container.id = 'bookmark-extension-root'
+  document.body.appendChild(container)
 
-const root = createRoot(container)
-root.render(<ContentApp />)
+  // 创建Shadow Root
+  const shadowRoot = container.attachShadow({ mode: 'closed' })
+
+  // 创建样式容器
+  const styleContainer = document.createElement('div')
+  shadowRoot.appendChild(styleContainer)
+
+  // 创建React根容器
+  const reactContainer = document.createElement('div')
+  shadowRoot.appendChild(reactContainer)
+
+  return { shadowRoot, reactContainer, styleContainer }
+}
+
+// 注入Tailwind和组件样式到Shadow DOM
+const injectStyles = (styleContainer: HTMLElement) => {
+  // 注入Tailwind CSS
+  const tailwindLink = document.createElement('link')
+  tailwindLink.rel = 'stylesheet'
+  tailwindLink.href = chrome.runtime.getURL('content.css')
+  styleContainer.appendChild(tailwindLink)
+
+  // 添加基础样式以确保正确的字体和重置
+  const baseStyles = document.createElement('style')
+  baseStyles.textContent = `
+    * {
+      box-sizing: border-box;
+    }
+    
+    :host {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  `
+
+  styleContainer.appendChild(baseStyles)
+}
+
+// 初始化扩展
+const initExtension = () => {
+  const { reactContainer, styleContainer } = createShadowRoot()
+
+  // 注入样式
+  injectStyles(styleContainer)
+
+  // 创建React根并渲染应用
+  const root = createRoot(reactContainer)
+  root.render(<ContentApp />)
+}
+
+// 启动扩展
+initExtension()

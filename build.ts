@@ -2,53 +2,54 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { InlineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-
+import tailwindcss from '@tailwindcss/vite'
+import tailwindcssPlugin from '@tailwindcss/postcss'
 import { build } from 'vite'
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
-
-const baseOptions: InlineConfig = {
+const baseOptions = (): InlineConfig => ({
   root: process.cwd(),
   base: '.',
   plugins: [react()],
   resolve: {
     alias: {
-      '@': '/src'
-    }
+      '@': '/src',
+    },
   },
-}
+  css: {
+    postcss: {
+      plugins: [tailwindcssPlugin],
+    },
+  },
+})
 
 const buildOptions: InlineConfig[] = [
   {
-    ...baseOptions,
+    ...baseOptions(),
     build: {
       emptyOutDir: true,
       outDir: 'dist',
     },
   },
   {
-    ...baseOptions,
+    ...baseOptions(),
     build: {
       emptyOutDir: false,
       outDir: 'dist',
       lib: {
         name: 'content',
         entry: 'src/content.tsx',
-        formats: ['es'],
-        fileName: (format) => `content.js`,
+        formats: ['umd'],
+        fileName: format => `content.js`,
         cssFileName: `content`,
       },
-      rolldownOptions: {
-
-      }
-
     },
     define: {
       'process.env.NODE_ENV': JSON.stringify('production'),
     },
+  },
 
-  }, {
-    ...baseOptions,
+  {
+    ...baseOptions(),
     build: {
       emptyOutDir: false,
       outDir: 'dist',
@@ -56,13 +57,11 @@ const buildOptions: InlineConfig[] = [
         name: 'background',
         entry: 'src/background.ts',
         formats: ['es'],
-        fileName: (format) => `background.js`
-      }
+        fileName: format => `background.js`,
+      },
     },
   },
-
 ]
-
 
 const buildAssets = async () => {
   for (const option of buildOptions) {
