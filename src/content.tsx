@@ -100,7 +100,6 @@ const initExtension = async () => {
 
   // 注入样式
   await injectStyles(styleContainer)
-
   // 创建React根并渲染应用
   const root = createRoot(reactContainer)
   root.render(<ContentApp />)

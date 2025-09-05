@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react'
 import { build, InlineConfig } from 'vite'
-
+import chokidar from 'chokidar'
 const baseOptions = (): InlineConfig => ({
   root: process.cwd(),
   base: '.',
@@ -61,4 +61,7 @@ const buildAssets = async () => {
   }
 }
 
-buildAssets()
+chokidar.watch('./src').on('all', (event, path) => {
+  console.log(event, path)
+  buildAssets()
+})
