@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import Draggable from 'react-draggable'
 import hotkeys from 'hotkeys-js'
 import Popup from './components/Popup'
 import './content.css'
@@ -32,22 +31,20 @@ const ContentApp: React.FC = () => {
 
   if (!isVisible) return null
   return (
-    <Draggable>
-      <div className='fixed top-20 right-4 z-50 bg-white border border-gray-300 rounded-lg shadow-lg max-w-md w-full max-h-96 overflow-hidden'>
-        <div className='drag-handle bg-gray-100 px-4 py-2 cursor-move flex items-center justify-between'>
-          <span className='font-semibold'>Bookmark Manager</span>
-          <button
-            onClick={() => setIsVisible(false)}
-            className='text-gray-500 hover:text-gray-700'
-          >
-            ✕
-          </button>
-        </div>
-        <div className='p-4 overflow-auto max-h-80'>
-          <Popup />
-        </div>
+    <div className='fixed top-20 right-4 z-50 bg-white border border-gray-300 rounded-lg shadow-lg max-w-md w-full max-h-96 overflow-hidden'>
+      <div className='drag-handle bg-gray-100 px-4 py-2 cursor-move flex items-center justify-between'>
+        <span className='font-semibold'>Bookmark Manager</span>
+        <button
+          onClick={() => setIsVisible(false)}
+          className='text-gray-500 hover:text-gray-700'
+        >
+          ✕
+        </button>
       </div>
-    </Draggable>
+      <div className='p-4 overflow-auto max-h-80'>
+        <Popup />
+      </div>
+    </div>
   )
 }
 
@@ -55,6 +52,10 @@ const ContentApp: React.FC = () => {
 const createShadowRoot = () => {
   const container = document.createElement('div')
   container.id = 'bookmark-extension-root'
+  container.setAttribute(
+    'style',
+    'position: fixed; top: 0; left: 0; z-index: 2147483647;'
+  ) // 确保最高优先级
   document.body.appendChild(container)
 
   // 创建Shadow Root
@@ -78,24 +79,6 @@ const injectStyles = (styleContainer: HTMLElement) => {
   tailwindLink.rel = 'stylesheet'
   tailwindLink.href = chrome.runtime.getURL('content.css')
   styleContainer.appendChild(tailwindLink)
-
-  // 添加基础样式以确保正确的字体和重置
-  const baseStyles = document.createElement('style')
-  baseStyles.textContent = `
-    * {
-      box-sizing: border-box;
-    }
-    
-    :host {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-  `
-
-  styleContainer.appendChild(baseStyles)
 }
 
 // 初始化扩展

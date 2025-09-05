@@ -1,10 +1,6 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { InlineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 import tailwindcssPlugin from '@tailwindcss/postcss'
-import { build } from 'vite'
+import react from '@vitejs/plugin-react'
+import { build, InlineConfig } from 'vite'
 
 const baseOptions = (): InlineConfig => ({
   root: process.cwd(),
@@ -39,7 +35,7 @@ const buildOptions: InlineConfig[] = [
         name: 'content',
         entry: 'src/content.tsx',
         formats: ['umd'],
-        fileName: format => `content.js`,
+        fileName: _format => `content.js`,
         cssFileName: `content`,
       },
     },
@@ -47,7 +43,6 @@ const buildOptions: InlineConfig[] = [
       'process.env.NODE_ENV': JSON.stringify('production'),
     },
   },
-
   {
     ...baseOptions(),
     build: {
@@ -57,7 +52,7 @@ const buildOptions: InlineConfig[] = [
         name: 'background',
         entry: 'src/background.ts',
         formats: ['es'],
-        fileName: format => `background.js`,
+        fileName: _format => `background.js`,
       },
     },
   },

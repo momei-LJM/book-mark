@@ -9,13 +9,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure proper isolation */
-* {
-  box-sizing: border-box;
-}
 
-/* Override any potential host page interference */
-div, span, button, input {
-  all: initial;
-  font-family: inherit;
-}
+  * {
+      box-sizing: border-box;
+    }
+    
