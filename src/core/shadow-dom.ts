@@ -1,4 +1,6 @@
 import { CONTAINER_CONTAINER_ID } from '../constants'
+// 导入编译后的样式
+import contentStyles from 'virtual:content-css'
 
 /**
  * inject styles into the shadow DOM
@@ -6,19 +8,30 @@ import { CONTAINER_CONTAINER_ID } from '../constants'
  */
 export async function injectStyles(styleContainer: ShadowRoot) {
   try {
-    const cssUrl = chrome.runtime.getURL('content.css')
-    const response = await fetch(cssUrl)
-    //replace :root with :host for shadow DOM (tailwind uses :root for variables)
-    const cssText = (await response.text()).replace(':root', ':host')
+    const div = document.createElement('div')
     const styleElement = document.createElement('style')
-    styleElement.textContent = cssText
-    styleContainer.appendChild(styleElement)
+    // if (__DEV__) {
+    //   const styleTag = document.querySelectorAll('style')
+    //   const target = Array.from(styleTag).find(tag =>
+    //     tag.dataset.viteDevId?.endsWith('src/styles/content.css')
+    //   )
+    //   const contentStyle = target?.textContent
+
+    //   styleElement.textContent = contentStyle || ''
+    //   target?.remove()
+    //   div.appendChild(styleElement)
+    // } else {
+    //   console.log('Injecting styles in production mode')
+    //   styleContainer.appendChild(div)
+    //   div.appendChild(styleElement)
+    //   styleElement.textContent = contentStyles
+    // }
+    console.log('Injecting styles in production mode')
+    styleContainer.appendChild(div)
+    div.appendChild(styleElement)
+    styleElement.textContent = contentStyles
   } catch (error) {
     console.error('Failed to inject styles:', error)
-    const tailwindLink = document.createElement('link')
-    tailwindLink.rel = 'stylesheet'
-    tailwindLink.href = chrome.runtime.getURL('content.css')
-    styleContainer.appendChild(tailwindLink)
   }
 }
 

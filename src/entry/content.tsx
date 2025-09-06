@@ -1,5 +1,4 @@
 import { createRoot } from 'react-dom/client'
-import '../styles/content.css'
 import { createShadowRoot, injectStyles } from '../core/shadow-dom'
 import { ContentApp } from '../components/content-app'
 

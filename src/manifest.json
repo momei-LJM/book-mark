@@ -14,16 +14,10 @@
   "content_scripts": [
     {
       "js": ["src/entry/content.tsx"],
-      "css": ["src/content.css"],
       "matches": ["<all_urls>"]
     }
   ],
-  "web_accessible_resources": [
-    {
-      "resources": ["src/content.css"],
-      "matches": ["<all_urls>"]
-    }
-  ],
+  "web_accessible_resources": [],
   "permissions": ["bookmarks", "storage", "activeTab", "tabs"],
   "host_permissions": ["<all_urls>"]
 }

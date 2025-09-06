@@ -2,9 +2,11 @@ import react from '@vitejs/plugin-react'
 import { crx } from '@crxjs/vite-plugin'
 import { defineConfig } from 'vite'
 import manifest from './src/manifest.json'
+import vitePluginContentCss from './plugins/vite-plugin-content-css'
+const isDev = process.env.NODE_ENV === 'development'
 
 export default defineConfig({
-  plugins: [react(), crx({ manifest })],
+  plugins: [react(), crx({ manifest }), vitePluginContentCss()],
   resolve: {
     alias: {
       '@': '/src',
@@ -16,5 +18,8 @@ export default defineConfig({
     hmr: {
       port: 5173,
     },
+  },
+  define: {
+    __DEV__: isDev,
   },
 })
