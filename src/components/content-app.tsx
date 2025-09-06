@@ -1,10 +1,17 @@
+import { ScrollArea } from '@radix-ui/react-scroll-area'
 import hotkeys from 'hotkeys-js'
 import { useEffect, useState } from 'react'
-import Popup from './Popup'
+import { useBookmarks } from '../hooks/useBookmarks'
+import BookmarkTree from './bookmark-tree'
+import { Empty } from './empty'
+import { NoMatch } from './no-match'
+import { SearchBlock } from './search-block'
+import { Statistics } from './statiscs'
+import { Separator } from './ui/separator'
 
 export const ContentApp: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false)
-
+  const { bookmarks, searchQuery, filter, statistic } = useBookmarks()
   useEffect(() => {
     // 监听快捷键 - 使用Ctrl+Alt+B避免与浏览器冲突
     hotkeys('ctrl+alt+c, command+option+c', event => {
@@ -37,8 +44,23 @@ export const ContentApp: React.FC = () => {
           ✕
         </button>
       </div>
-      <div className='p-4 overflow-auto max-h-80'>
-        <Popup />
+      <Statistics statistic={statistic} />
+      <div className='p-4 flex flex-col max-h-80'>
+        <div className='px-6 pb-3'>
+          <SearchBlock searchQuery={searchQuery} filter={filter} />
+        </div>
+        <Separator />
+        <ScrollArea className='flex-1 overflow-auto'>
+          <div className='p-4'>
+            {bookmarks.length > 0 ? (
+              <BookmarkTree bookmarks={bookmarks} />
+            ) : searchQuery ? (
+              <NoMatch />
+            ) : (
+              <Empty />
+            )}
+          </div>
+        </ScrollArea>
       </div>
     </div>
   )
