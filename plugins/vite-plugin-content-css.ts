@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import postcss, { Root, Comment, Rule } from 'postcss'
 import tailwindcss from 'tailwindcss'
@@ -38,7 +38,6 @@ export default function vitePluginContentCss() {
   const genCss = async () => {
     try {
       const cssPath = resolve(process.cwd(), 'src/styles/content.css')
-      const cssOutputPath = resolve(process.cwd(), 'demo2.css')
       const tailwindConfigPath = resolve(process.cwd(), 'tailwind.config.js')
       const cssContent = await readFile(cssPath, 'utf-8')
 
@@ -48,17 +47,10 @@ export default function vitePluginContentCss() {
         autoprefixer(), // 添加我们的转换插件
       ]).process(cssContent, {
         from: cssPath,
-        to: cssOutputPath,
+        to: null,
       })
 
       compiledCss = result.css.replace(/:root/g, ':host')
-      writeFile(cssOutputPath, compiledCss)
-      console.log(
-        'CSS compiled successfully for production, length:',
-        compiledCss.length
-      )
-
-      console.log('First 200 chars:', compiledCss.substring(0, 200))
     } catch (error) {
       console.error('Failed to compile CSS:', error)
       compiledCss = ''
@@ -83,14 +75,6 @@ export default function vitePluginContentCss() {
     async load(id: string) {
       if (id === resolvedVirtualModuleId) {
         await genCss()
-        //         if (isDev) {
-        //           // 在开发环境中导入CSS，让Vite处理PostCSS
-        //           return `import contentCss from '@/styles/content.css?inline';
-        // export default contentCss;`
-        //         } else {
-        //           // 在生产环境中返回编译后的CSS
-
-        //       }
         return `
           const compiledCss = ${JSON.stringify(compiledCss || '')};
           export default compiledCss;`

@@ -10,22 +10,6 @@ export async function injectStyles(styleContainer: ShadowRoot) {
   try {
     const div = document.createElement('div')
     const styleElement = document.createElement('style')
-    // if (__DEV__) {
-    //   const styleTag = document.querySelectorAll('style')
-    //   const target = Array.from(styleTag).find(tag =>
-    //     tag.dataset.viteDevId?.endsWith('src/styles/content.css')
-    //   )
-    //   const contentStyle = target?.textContent
-
-    //   styleElement.textContent = contentStyle || ''
-    //   target?.remove()
-    //   div.appendChild(styleElement)
-    // } else {
-    //   console.log('Injecting styles in production mode')
-    //   styleContainer.appendChild(div)
-    //   div.appendChild(styleElement)
-    //   styleElement.textContent = contentStyles
-    // }
     console.log('Injecting styles in production mode')
     styleContainer.appendChild(div)
     div.appendChild(styleElement)
