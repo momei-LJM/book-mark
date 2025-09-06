@@ -1,13 +1,19 @@
-import { Badge, Folder, Link } from 'lucide-react'
+import { Folder, Link } from 'lucide-react'
 import { BookmarkNode } from '@/hooks/useBookmarks'
 import { Button } from '@/components/ui/button'
 import { getFaviconUrl, handleFaviconError } from '@/core/favicon'
+import { Badge } from './ui/badge'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 interface BookmarkTreeProps {
   bookmarks: BookmarkNode[]
 }
 
 export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
+  const renderItem = (node: BookmarkNode) => {
+    return <div key={node.id}>{node.title}</div>
+  }
+
   const renderBookmarks = (
     nodes: BookmarkNode[],
     level = 0
@@ -58,27 +64,37 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
                 </Button>
               </div>
             ) : (
-              <div className='flex items-center gap-2 p-2'>
-                <Folder className='w-4 h-4 text-gray-400' />
-                <span className='text-sm font-medium text-gray-700'>
-                  {node.title || '未命名文件夹'}
-                </span>
-                {node.children && node.children.length > 0 && (
-                  <Badge className='text-xs'>
-                    {node.children.filter(child => child.url).length}
-                  </Badge>
-                )}
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className='flex items-center gap-2 p-2'>
+                    <Folder className='w-4 h-4 text-gray-400' />
+                    <span className='text-sm font-medium text-gray-700'>
+                      {node.title || '未命名文件夹'}
+                    </span>
+                    {node.children && node.children.length > 0 && (
+                      <Badge className='text-xs'>
+                        {node.children.filter(child => child.url).length}
+                      </Badge>
+                    )}
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent side='right' align='start'>
+                  {node.children && node.children.length > 0 && (
+                    <BookmarkTree bookmarks={node.children} />
+                  )}
+                </PopoverContent>
+              </Popover>
             )}
-            {node.children &&
-              node.children.length > 0 &&
-              renderBookmarks(node.children, level + 1)}
           </div>
         )
 
         return [element]
       })
       .flat()
+  }
+
+  const nextLevelPanel = (props: { bookmarks: BookmarkNode[] }) => {
+    return <div className='ml-4'>{renderBookmarks(props.bookmarks)}</div>
   }
   return <>{renderBookmarks(bookmarks)}</>
 }

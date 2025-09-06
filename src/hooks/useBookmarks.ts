@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { requestBookmarkTree } from '@/core/message'
+import { Logger } from '../lib/utils'
 export interface BookmarkNode {
   id: string
   title: string
@@ -7,20 +8,33 @@ export interface BookmarkNode {
   children?: BookmarkNode[]
   dateAdded?: number
 }
+export interface UseBookmarksReturn {
+  bookmarks: BookmarkNode[]
+  filter: (query: string) => void
+  isLoading: boolean
+  statistic: {
+    totalBookmarks: number
+    totalFolders: number
+  }
+  searchQuery: string
+  originalBookmarks: BookmarkNode[]
+}
 export const useBookmarks = () => {
   const [bookmarks, setBookmarks] = useState<BookmarkNode[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    requestBookmarkTree().then(response => {
-      console.log('Received bookmarks:', response.bookmarks)
+  const initBookmarks = async () => {
+    const response = await requestBookmarkTree()
+    Logger.info('Bookmarks fetched successfully', response.bookmarks)
+    if (response && response.bookmarks) {
+      setBookmarks(response.bookmarks as BookmarkNode[])
+    }
+    setIsLoading(false)
+  }
 
-      if (response && response.bookmarks) {
-        setBookmarks(response.bookmarks as BookmarkNode[])
-      }
-      setIsLoading(false)
-    })
+  useEffect(() => {
+    initBookmarks()
   }, [])
 
   // 统计信息
@@ -80,6 +94,7 @@ export const useBookmarks = () => {
   }, [bookmarks, searchQuery])
 
   return {
+    originalBookmarks: bookmarks,
     bookmarks: filteredBookmarks,
     filter: setSearchQuery,
     isLoading,

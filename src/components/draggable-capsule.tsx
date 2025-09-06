@@ -1,6 +1,5 @@
 import { useDrag } from '@use-gesture/react'
 import { useSpring, animated } from 'react-spring'
-import { X, Bookmark } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 interface DraggableCapsuleProps {
@@ -25,7 +24,7 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
   // 监听窗口大小变化，确保胶囊位置有效
   useEffect(() => {
     const handleResize = () => {
-      const capsuleWidth = 160 // 胶囊宽度
+      const capsuleWidth = 168 // 根据展开状态动态调整宽度
       const capsuleHeight = 48 // 胶囊高度
       setPosition(prev => ({
         x: Math.max(0, Math.min(prev.x, window.innerWidth - capsuleWidth)),
@@ -35,7 +34,7 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
 
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [isExpanded])
 
   // 拖拽手势
   const bind = useDrag(
@@ -49,7 +48,7 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
         setPosition({ x: newX, y: newY })
       } else {
         // 拖拽结束时检查边界并回弹
-        const capsuleWidth = 160
+        const capsuleWidth = 168 // 根据展开状态动态调整宽度
         const capsuleHeight = 48
         let finalX = position.x
         let finalY = position.y
@@ -93,25 +92,23 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
   const capsuleSpring = useSpring({
     transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
     scale: isExpanded ? 1.05 : isDragging ? 1.02 : isBouncing ? 1.1 : 1,
+
     config: isDragging
       ? { tension: 300, friction: 30 } // 拖拽时响应更快
       : isBouncing
         ? { tension: 400, friction: 20 } // 回弹时更有弹性
-        : { tension: 200, friction: 25 }, // 正常状态
-  })
-
-  // 图标动画
-  const iconSpring = useSpring({
-    rotate: isExpanded ? 180 : 0,
-    scale: isDragging ? 0.9 : 1,
-    config: { tension: 200, friction: 20 },
+        : isExpanded
+          ? { tension: 250, friction: 25 } // 展开时稍微快一点
+          : { tension: 200, friction: 25 }, // 折叠时平滑过渡
   })
 
   // 背景动画
   const backgroundSpring = useSpring({
     backgroundColor: isExpanded ? '#3b82f6' : '#2563eb',
     borderRadius: isExpanded ? '24px' : '24px',
-    config: { tension: 200, friction: 20 },
+    config: isExpanded
+      ? { tension: 300, friction: 250 } // 展开时稍微快一点
+      : { tension: 300, friction: 25 }, // 折叠时平滑过渡
   })
 
   // 面板动画
@@ -120,7 +117,7 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
     transform: isExpanded
       ? 'translateY(0px) scale(1)'
       : 'translateY(-10px) scale(0.95)',
-    config: { tension: 300, friction: 30 },
+    config: { tension: 300, friction: 25 },
   })
 
   return (
@@ -129,29 +126,20 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
       {...bind()}
       style={capsuleSpring}
       className='fixed z-50 select-none'
-      onClick={e => {
-        // 只有在没有拖拽时才触发点击
-        if (!isDragging && !e.defaultPrevented) {
-          onClick()
-        }
-      }}
     >
       {/* 胶囊主体 */}
       <animated.div
         style={backgroundSpring}
-        className='w-40 h-12 shadow-lg transition-all duration-200 flex items-center justify-center cursor-move hover:shadow-xl border-2 border-white/20 backdrop-blur-sm bg-opacity-95 rounded-3xl'
+        className='h-12 shadow-lg transition-all duration-200 flex items-center justify-center cursor-move hover:shadow-xl border-2 border-white/20 backdrop-blur-sm bg-opacity-95 rounded-3xl'
+        onClick={e => {
+          // 只有在没有拖拽时才触发点击
+          if (!isDragging && !e.defaultPrevented) {
+            onClick()
+          }
+        }}
       >
-        <div className='flex items-center space-x-2 text-white px-4'>
-          <animated.div style={iconSpring}>
-            {isExpanded ? (
-              <X className='w-4 h-4' />
-            ) : (
-              <Bookmark className='w-4 h-4' />
-            )}
-          </animated.div>
-          <span className='text-sm font-medium whitespace-nowrap'>
-            {isExpanded ? '关闭' : '书签'}
-          </span>
+        <div className='drag-handle flex-1 h-full bg-gray-100 px-4 py-2 cursor-move flex items-center justify-between rounded-3xl'>
+          <span className='font-semibold'>Bookmark Manager</span>
         </div>
       </animated.div>
 
@@ -160,11 +148,6 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
         <animated.div style={panelSpring} className='absolute top-14 left-0'>
           {children}
         </animated.div>
-      )}
-
-      {/* 拖拽时的视觉反馈 */}
-      {isDragging && (
-        <div className='absolute inset-0 rounded-3xl bg-blue-400 opacity-30 animate-pulse' />
       )}
     </animated.div>
   )

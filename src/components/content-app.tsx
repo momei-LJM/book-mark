@@ -1,12 +1,20 @@
-import { useEffect, useState, useCallback } from 'react'
-import { useBookmarks } from '../hooks/useBookmarks'
-import { DraggableCapsule } from './draggable-capsule'
-import { BookmarkPanel } from './bookmark-panel'
+import { StoreContext } from '@/core/context'
 import hotkeys from 'hotkeys-js'
+import { useCallback, useEffect, useState } from 'react'
+import { useBookmarks } from '../hooks/useBookmarks'
+import { BookmarkPanel } from './bookmark-panel'
+import { DraggableCapsule } from './draggable-capsule'
 
 export const ContentApp: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false)
-  const { bookmarks, searchQuery, filter, statistic } = useBookmarks()
+  const {
+    bookmarks,
+    searchQuery,
+    isLoading,
+    filter,
+    statistic,
+    originalBookmarks,
+  } = useBookmarks()
 
   const togglePanel = useCallback(() => {
     setIsVisible(prev => !prev)
@@ -37,14 +45,19 @@ export const ContentApp: React.FC = () => {
   }, [togglePanel])
 
   return (
-    <DraggableCapsule onClick={togglePanel} isExpanded={isVisible}>
-      <BookmarkPanel
-        bookmarks={bookmarks}
-        searchQuery={searchQuery}
-        filter={filter}
-        statistic={statistic}
-        onClose={handleClose}
-      />
-    </DraggableCapsule>
+    <StoreContext.Provider
+      value={{
+        bookmarks,
+        filter,
+        statistic,
+        searchQuery,
+        originalBookmarks,
+        isLoading,
+      }}
+    >
+      <DraggableCapsule onClick={togglePanel} isExpanded={isVisible}>
+        <BookmarkPanel onClose={handleClose} />
+      </DraggableCapsule>
+    </StoreContext.Provider>
   )
 }
