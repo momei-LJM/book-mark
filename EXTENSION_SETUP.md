@@ -17,11 +17,12 @@ pnpm dev
 3. Click "Load unpacked"
 4. Select the `dist` folder from your project
 
-### 3. Test hot reload
+### 3. Test the draggable capsule
 
-- Make changes to any React component or CSS file
-- The extension will automatically reload in Chrome
-- No need to manually reload the extension!
+- **Click the blue capsule** to open/close the bookmark panel
+- **Drag the capsule** to move it anywhere on the screen
+- **Use keyboard shortcut** `Ctrl+Alt+C` (or `Cmd+Option+C` on Mac) as alternative
+- The capsule shows a search icon when closed and an X when the panel is open
 
 ## Features:
 
@@ -30,6 +31,9 @@ pnpm dev
 - ✅ Tailwind CSS v3 support
 - ✅ Shadow DOM compatibility
 - ✅ TypeScript support
+- ✅ **Draggable Capsule**: Click the floating blue capsule to toggle the bookmark panel
+- ✅ **Smooth Animations**: Powered by React Spring for fluid interactions
+- ✅ **Drag & Drop**: Move the capsule anywhere on the screen
 
 ## Development commands:
 
