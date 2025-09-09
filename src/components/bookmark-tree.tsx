@@ -1,7 +1,7 @@
 import { Folder, Link } from 'lucide-react'
 import { BookmarkNode } from '@/hooks/useBookmarks'
 import { Button } from '@/components/ui/button'
-import { getFaviconUrl, handleFaviconError } from '@/core/favicon'
+import { getFaviconUrl } from '@/core/favicon'
 import { Badge } from './ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
@@ -10,10 +10,6 @@ interface BookmarkTreeProps {
 }
 
 export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
-  const renderItem = (node: BookmarkNode) => {
-    return <div key={node.id}>{node.title}</div>
-  }
-
   const renderBookmarks = (
     nodes: BookmarkNode[],
     level = 0
@@ -38,7 +34,6 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
                   src={getFaviconUrl(node.url)}
                   alt=''
                   className='w-4 h-4 flex-shrink-0'
-                  onError={e => handleFaviconError(e, node.url!)}
                 />
                 <div className='flex-1 min-w-0'>
                   <button
@@ -91,10 +86,6 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
         return [element]
       })
       .flat()
-  }
-
-  const nextLevelPanel = (props: { bookmarks: BookmarkNode[] }) => {
-    return <div className='ml-4'>{renderBookmarks(props.bookmarks)}</div>
   }
   return <>{renderBookmarks(bookmarks)}</>
 }
