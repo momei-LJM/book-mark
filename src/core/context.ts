@@ -11,4 +11,6 @@ export const StoreContext = createContext<UseBookmarksReturn>({
   },
   searchQuery: '',
   originalBookmarks: [],
+  onAddGroup: () => {},
+  onRemoveGroup: () => {},
 })

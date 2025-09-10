@@ -3,13 +3,15 @@ import { BookmarkNode } from '@/hooks/useBookmarks'
 import { Button } from '@/components/ui/button'
 import { getFaviconUrl } from '@/core/favicon'
 import { Badge } from './ui/badge'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { useContext } from 'react'
+import { StoreContext } from '../core/context'
 
 interface BookmarkTreeProps {
   bookmarks: BookmarkNode[]
 }
 
 export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
+  const { onAddGroup, onRemoveGroup } = useContext(StoreContext)
   const renderBookmarks = (
     nodes: BookmarkNode[],
     level = 0
@@ -23,7 +25,7 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
             node.title === 'Bookmarks bar' ||
             node.title === 'Other bookmarks')
         ) {
-          return node.children ? renderBookmarks(node.children, level) : []
+          return []
         }
 
         const element = (
@@ -59,26 +61,24 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
                 </Button>
               </div>
             ) : (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <div className='flex items-center gap-2 p-2'>
-                    <Folder className='w-4 h-4 text-gray-400' />
-                    <span className='text-sm font-medium text-gray-700'>
-                      {node.title || '未命名文件夹'}
-                    </span>
-                    {node.children && node.children.length > 0 && (
-                      <Badge className='text-xs'>
-                        {node.children.filter(child => child.url).length}
-                      </Badge>
-                    )}
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent side='right' align='start'>
-                  {node.children && node.children.length > 0 && (
-                    <BookmarkTree bookmarks={node.children} />
-                  )}
-                </PopoverContent>
-              </Popover>
+              <div
+                className='flex items-center gap-2 p-2 hover:bg-gray-50 transition-colors'
+                onMouseEnter={() => onAddGroup(node.id)}
+                onMouseLeave={() => {
+                  console.log('cccccc')
+                  onRemoveGroup(node.id)
+                }}
+              >
+                <Folder className='w-4 h-4 text-gray-400' />
+                <span className='text-sm font-medium text-gray-700'>
+                  {node.title || '未命名文件夹'}
+                </span>
+                {node.children && node.children.length > 0 && (
+                  <Badge className='text-xs'>
+                    {node.children.filter(child => child.url).length}
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
         )
@@ -87,5 +87,7 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
       })
       .flat()
   }
+  console.log('BookmarkTree', bookmarks)
+
   return <>{renderBookmarks(bookmarks)}</>
 }

@@ -145,7 +145,10 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
 
       {/* 展开的面板 */}
       {isExpanded && children && (
-        <animated.div style={panelSpring} className='absolute top-14 left-0'>
+        <animated.div
+          style={panelSpring}
+          className='absolute top-14 left-0 flex flex-row gap-2'
+        >
           {children}
         </animated.div>
       )}

@@ -33,7 +33,7 @@ export function createShadowRoot() {
   document.body.appendChild(container)
 
   // 创建Shadow Root
-  const shadowRoot = container.attachShadow({ mode: 'closed' })
+  const shadowRoot = container.attachShadow({ mode: 'open' })
 
   // 创建React根容器
   const reactContainer = document.createElement('div')

@@ -18,17 +18,39 @@ export interface UseBookmarksReturn {
   }
   searchQuery: string
   originalBookmarks: BookmarkNode[]
+  onAddGroup: (id: string) => void
+  onRemoveGroup: (id: string) => void
+}
+
+interface TGroup extends BookmarkNode {
+  main?: boolean
 }
 export const useBookmarks = () => {
   const [bookmarks, setBookmarks] = useState<BookmarkNode[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
+  const [groups, setGroups] = useState<TGroup[]>([])
+
+  const addGroup = (id: string) => {
+    if (groups.find(g => g.id === id)) return
+    setGroups(prev => {
+      const finded = findBookMarkById(id)
+      return finded ? [...prev, finded] : prev
+    })
+  }
+
+  const removeGroup = (id: string) => {
+    if (!groups.find(g => g.id === id)) return
+    setGroups(prev => prev.filter(c => c.id !== id))
+  }
+
   const initBookmarks = async () => {
     const response = await requestBookmarkTree()
     Logger.info('Bookmarks fetched successfully', response.bookmarks)
     if (response && response.bookmarks) {
       setBookmarks(response.bookmarks as BookmarkNode[])
+      setGroups([{ ...response.bookmarks[0], main: true }])
     }
     setIsLoading(false)
   }
@@ -93,6 +115,25 @@ export const useBookmarks = () => {
     return filterNodes(bookmarks)
   }, [bookmarks, searchQuery])
 
+  // 递归查找
+  const findBookMarkById = (
+    id: string,
+    tree: BookmarkNode[] = bookmarks
+  ): BookmarkNode | null => {
+    for (const node of tree) {
+      if (node.id === id) {
+        return node
+      }
+      if (node.children) {
+        const found = findBookMarkById(id, node.children)
+        if (found) {
+          return found
+        }
+      }
+    }
+    return null
+  }
+
   return {
     originalBookmarks: bookmarks,
     bookmarks: filteredBookmarks,
@@ -100,5 +141,11 @@ export const useBookmarks = () => {
     isLoading,
     statistic: stats,
     searchQuery,
+    findBookMarkById,
+    addGroup,
+    groups,
+    removeGroup,
+    onAddGroup: addGroup,
+    onRemoveGroup: removeGroup,
   }
 }
