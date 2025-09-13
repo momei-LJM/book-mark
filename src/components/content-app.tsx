@@ -9,7 +9,6 @@ import { HOT_KEYS } from '../constants'
 export const ContentApp: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false)
   const store = useBookmarks()
-  console.log(11111, store)
 
   const togglePanel = useCallback(() => {
     setIsVisible(prev => !prev)
@@ -30,7 +29,7 @@ export const ContentApp: React.FC = () => {
   }, [togglePanel])
 
   return (
-    <StoreContext.Provider value={store}>
+    <StoreContext value={store}>
       <DraggableCapsule onClick={togglePanel} isExpanded={isVisible}>
         {store.groups.map(g => (
           <BookmarkPanel
@@ -41,6 +40,6 @@ export const ContentApp: React.FC = () => {
           />
         ))}
       </DraggableCapsule>
-    </StoreContext.Provider>
+    </StoreContext>
   )
 }

@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { requestBookmarkTree } from '@/core/message'
-import { Logger } from '../lib/utils'
+import { createdFlatList, Logger } from '../lib/utils'
 export interface BookmarkNode {
   id: string
   title: string
   url?: string
   children?: BookmarkNode[]
   dateAdded?: number
+  parentId?: string
 }
 export interface UseBookmarksReturn {
   bookmarks: BookmarkNode[]
@@ -18,26 +19,41 @@ export interface UseBookmarksReturn {
   }
   searchQuery: string
   originalBookmarks: BookmarkNode[]
-  onAddGroup: (id: string) => void
+  onAddGroup: (id: string, parentId?: string) => void
   onRemoveGroup: (id: string) => void
 }
 
 interface TGroup extends BookmarkNode {
   main?: boolean
 }
+
 export const useBookmarks = () => {
   const [bookmarks, setBookmarks] = useState<BookmarkNode[]>([])
+  const [flatMarks, setFlatMarks] = useState<BookmarkNode[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
   const [groups, setGroups] = useState<TGroup[]>([])
 
-  const addGroup = (id: string) => {
-    if (groups.find(g => g.id === id)) return
-    setGroups(prev => {
-      const finded = findBookMarkById(id)
-      return finded ? [...prev, finded] : prev
-    })
+  // 当前面板id链
+  const chainIds = useMemo(() => groups.map(g => g.id), [groups])
+
+  const addGroup = (id: string, parentId?: string) => {
+    const finded = findBookMarkById(id)
+
+    if (!finded) return
+
+    if (parentId === undefined) {
+      setGroups([...groups, finded])
+      return
+    }
+
+    // 如果父节点在链上，截断到父节点并添加当前节点
+    const parentIndex = chainIds.indexOf(parentId)
+    if (parentIndex > -1) {
+      setGroups([...groups.slice(0, parentIndex + 1), finded])
+      return
+    }
   }
 
   const removeGroup = (id: string) => {
@@ -51,6 +67,11 @@ export const useBookmarks = () => {
     if (response && response.bookmarks) {
       setBookmarks(response.bookmarks as BookmarkNode[])
       setGroups([{ ...response.bookmarks[0], main: true }])
+      setFlatMarks(
+        createdFlatList<BookmarkNode>(response.bookmarks, node => {
+          return !!node.url
+        })
+      )
     }
     setIsLoading(false)
   }
@@ -85,55 +106,56 @@ export const useBookmarks = () => {
     return { totalBookmarks, totalFolders }
   }, [bookmarks])
 
+  // 递归查找
+  const findBookMarkById = useCallback(
+    (id: string, tree: BookmarkNode[] = bookmarks): BookmarkNode | null => {
+      for (const node of tree) {
+        if (node.id === id) {
+          return node
+        }
+        if (node.children) {
+          const found = findBookMarkById(id, node.children)
+          if (found) {
+            return found
+          }
+        }
+      }
+      return null
+    },
+    [bookmarks]
+  )
+
   // 过滤书签
   const filteredBookmarks = useMemo(() => {
     if (!searchQuery.trim()) return bookmarks
 
-    const filterNodes = (nodes: BookmarkNode[]): BookmarkNode[] => {
-      return nodes
-        .map(node => {
-          const matchesSearch =
-            node.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            node.url?.toLowerCase().includes(searchQuery.toLowerCase())
+    // 从 flatMarks 中过滤匹配的书签
+    const matchedBookmarks = flatMarks.filter(
+      bookmark =>
+        bookmark.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bookmark.url?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
-          const filteredChildren = node.children
-            ? filterNodes(node.children)
-            : []
+    return matchedBookmarks
+  }, [flatMarks, searchQuery, bookmarks])
 
-          if (matchesSearch || filteredChildren.length > 0) {
-            return {
-              ...node,
-              children:
-                filteredChildren.length > 0 ? filteredChildren : node.children,
-            }
-          }
-          return null
-        })
-        .filter(Boolean) as BookmarkNode[]
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setGroups([
+        {
+          children: filteredBookmarks,
+          id: 'main',
+          title: 'Main',
+          main: true,
+        },
+      ])
+      Logger.log('Filtered Bookmarks:', filteredBookmarks)
+    } else {
+      Logger.log('feed', bookmarks)
+
+      setGroups([{ ...bookmarks[0], main: true }])
     }
-
-    return filterNodes(bookmarks)
-  }, [bookmarks, searchQuery])
-
-  // 递归查找
-  const findBookMarkById = (
-    id: string,
-    tree: BookmarkNode[] = bookmarks
-  ): BookmarkNode | null => {
-    for (const node of tree) {
-      if (node.id === id) {
-        return node
-      }
-      if (node.children) {
-        const found = findBookMarkById(id, node.children)
-        if (found) {
-          return found
-        }
-      }
-    }
-    return null
-  }
-
+  }, [filteredBookmarks, searchQuery])
   return {
     originalBookmarks: bookmarks,
     bookmarks: filteredBookmarks,

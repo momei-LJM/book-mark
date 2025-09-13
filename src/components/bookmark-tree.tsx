@@ -11,7 +11,7 @@ interface BookmarkTreeProps {
 }
 
 export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
-  const { onAddGroup, onRemoveGroup } = useContext(StoreContext)
+  const { onAddGroup } = useContext(StoreContext)
   const renderBookmarks = (
     nodes: BookmarkNode[],
     level = 0
@@ -63,11 +63,7 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
             ) : (
               <div
                 className='flex items-center gap-2 p-2 hover:bg-gray-50 transition-colors'
-                onMouseEnter={() => onAddGroup(node.id)}
-                onMouseLeave={() => {
-                  console.log('cccccc')
-                  onRemoveGroup(node.id)
-                }}
+                onMouseEnter={() => onAddGroup(node.id, node.parentId)}
               >
                 <Folder className='w-4 h-4 text-gray-400' />
                 <span className='text-sm font-medium text-gray-700'>

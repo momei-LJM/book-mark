@@ -19,3 +19,19 @@ export const Logger = {
     console.warn(`[WARN]`, ...messages)
   },
 }
+
+export function createdFlatList<T extends { children?: T[] }>(
+  nodes: T[],
+  filter: (node: T) => boolean = () => true,
+  list: T[] = []
+) {
+  nodes.forEach(node => {
+    if (filter(node)) {
+      list.push(node)
+    }
+    if (node.children) {
+      createdFlatList(node.children, filter, list)
+    }
+  })
+  return list
+}

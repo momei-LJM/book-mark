@@ -21,8 +21,6 @@ export const BookmarkPanel: React.FC<BookmarkPanelProps> = ({
 }) => {
   const { searchQuery, filter, statistic } = useContext(StoreContext)
 
-  console.log('xxxxxxx', bookmarks)
-
   const BookTreeRender = () =>
     bookmarks.length > 0 ? (
       <BookmarkTree bookmarks={bookmarks} />
