@@ -21,4 +21,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     })
     return true // 保持消息通道开放
   }
+  if (request.action === MESSAGE_ACTIONS.OPEN_TAB) {
+    chrome.tabs.create({ url: request.url })
+    sendResponse({ success: true })
+  }
 })
