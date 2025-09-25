@@ -19,7 +19,8 @@ export const BookmarkPanel: React.FC<BookmarkPanelProps> = ({
   main,
   bookmarks,
 }) => {
-  const { searchQuery, filter, statistic } = useContext(StoreContext)
+  const { searchQuery, filter, statistic, isExpanded } =
+    useContext(StoreContext)
 
   const BookTreeRender = () =>
     bookmarks.length > 0 ? (
@@ -37,7 +38,11 @@ export const BookmarkPanel: React.FC<BookmarkPanelProps> = ({
           <Statistics statistic={statistic} />
           <div className='p-4'>
             <div className='pb-3'>
-              <SearchBlock searchQuery={searchQuery} filter={filter} />
+              <SearchBlock
+                searchQuery={searchQuery}
+                filter={filter}
+                isExpanded={isExpanded}
+              />
             </div>
             <Separator />
             <ScrollArea className='h-[210px]'>

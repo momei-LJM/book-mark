@@ -21,6 +21,9 @@ export interface UseBookmarksReturn {
   originalBookmarks: BookmarkNode[]
   onAddGroup: (id: string, parentId?: string) => void
   onRemoveGroup: (id: string) => void
+  isExpanded: boolean
+  togglePanel: () => void
+  handleClose: () => void
 }
 
 interface TGroup extends BookmarkNode {
@@ -34,6 +37,15 @@ export const useBookmarks = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   const [groups, setGroups] = useState<TGroup[]>([])
+
+  const [isVisible, setIsVisible] = useState(false)
+  const togglePanel = useCallback(() => {
+    setIsVisible(prev => !prev)
+  }, [])
+
+  const handleClose = useCallback(() => {
+    setIsVisible(false)
+  }, [])
 
   // 当前面板id链
   const chainIds = useMemo(() => groups.map(g => g.id), [groups])
@@ -169,5 +181,9 @@ export const useBookmarks = () => {
     removeGroup,
     onAddGroup: addGroup,
     onRemoveGroup: removeGroup,
+
+    isExpanded: isVisible,
+    togglePanel,
+    handleClose,
   }
 }

@@ -3,19 +3,19 @@ import { useSpring, animated } from 'react-spring'
 import { useState, useRef, useEffect } from 'react'
 
 interface DraggableCapsuleProps {
-  onClick: () => void
   isExpanded: boolean
   children?: React.ReactNode
 }
 
 export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
-  onClick,
   isExpanded,
   children,
 }) => {
+  const PANEL_W = 420
+  const PANEL_H = 300
   const [position, setPosition] = useState({
-    x: window.innerWidth - 200, // 调整初始位置
-    y: window.innerHeight - 80, // 放在底部
+    x: window.innerWidth / 2 - PANEL_W / 2, // 居中
+    y: window.innerHeight / 2 - PANEL_H / 2, // 居中
   })
   const [isDragging, setIsDragging] = useState(false)
   const [isBouncing, setIsBouncing] = useState(false)
@@ -24,11 +24,9 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
   // 监听窗口大小变化，确保胶囊位置有效
   useEffect(() => {
     const handleResize = () => {
-      const capsuleWidth = 168 // 根据展开状态动态调整宽度
-      const capsuleHeight = 48 // 胶囊高度
       setPosition(prev => ({
-        x: Math.max(0, Math.min(prev.x, window.innerWidth - capsuleWidth)),
-        y: Math.max(0, Math.min(prev.y, window.innerHeight - capsuleHeight)),
+        x: Math.max(0, Math.min(prev.x, window.innerWidth - PANEL_W / 2)),
+        y: Math.max(0, Math.min(prev.y, window.innerHeight - PANEL_H / 2)),
       }))
     }
 
@@ -102,15 +100,6 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
           : { tension: 200, friction: 25 }, // 折叠时平滑过渡
   })
 
-  // 背景动画
-  const backgroundSpring = useSpring({
-    backgroundColor: isExpanded ? '#3b82f6' : '#2563eb',
-    borderRadius: isExpanded ? '24px' : '24px',
-    config: isExpanded
-      ? { tension: 300, friction: 250 } // 展开时稍微快一点
-      : { tension: 300, friction: 25 }, // 折叠时平滑过渡
-  })
-
   // 面板动画
   const panelSpring = useSpring({
     opacity: isExpanded ? 1 : 0,
@@ -128,7 +117,7 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
       className='fixed z-50 select-none'
     >
       {/* 胶囊主体 */}
-      <animated.div
+      {/* <animated.div
         style={backgroundSpring}
         className='h-12 shadow-lg transition-all duration-200 flex items-center justify-center cursor-move hover:shadow-xl border-2 border-white/20 backdrop-blur-sm bg-opacity-95 rounded-3xl'
         onClick={e => {
@@ -141,7 +130,7 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
         <div className='drag-handle flex-1 h-full bg-gray-100 px-4 py-2 cursor-move flex items-center justify-between rounded-3xl'>
           <span className='font-semibold'>Bookmark Manager</span>
         </div>
-      </animated.div>
+      </animated.div> */}
 
       {/* 展开的面板 */}
       {isExpanded && children && (

@@ -13,4 +13,7 @@ export const StoreContext = createContext<UseBookmarksReturn>({
   originalBookmarks: [],
   onAddGroup: () => {},
   onRemoveGroup: () => {},
+  isExpanded: false,
+  togglePanel: () => {},
+  handleClose: () => {},
 })

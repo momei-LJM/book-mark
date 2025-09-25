@@ -1,17 +1,26 @@
 import { Search } from 'lucide-react'
 import { Input } from './ui/input'
+import { useEffect, useRef } from 'react'
 
 interface SearchBlockProps {
   searchQuery: string
   filter: (query: string) => void
+  isExpanded?: boolean
 }
 
 export const SearchBlock: React.FC<SearchBlockProps> = props => {
-  const { searchQuery, filter } = props
+  const { searchQuery, filter, isExpanded } = props
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [isExpanded])
+
   return (
     <div className='relative'>
       <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
       <Input
+        ref={inputRef}
         placeholder='搜索书签...'
         value={searchQuery}
         onChange={e => filter(e.target.value)}

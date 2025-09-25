@@ -52,7 +52,9 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
                   >
                     <span className='truncate'>{node.title || node.url}</span>
                   </div>
-                  <p className='text-xs text-gray-500 truncate'>{node.url}</p>
+                  <div className='text-xs text-gray-500 truncate max-w-[200px] cursor-pointer'>
+                    {node.url}
+                  </div>
                 </div>
                 <Button
                   variant='ghost'
