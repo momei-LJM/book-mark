@@ -8,6 +8,8 @@ import { useContext } from 'react'
 import { StoreContext } from '../core/context'
 import { BookmarkNode } from '../hooks/useBookmarks'
 import { ScrollArea } from './ui/scroll-area'
+import BreadcrumbBookmarkTree from './breadcrumb-bookmark-tree'
+import CollapsibleBookmarkTree from './collapsible-bookmark-tree'
 
 interface BookmarkPanelProps {
   onClose: () => void
@@ -24,7 +26,7 @@ export const BookmarkPanel: React.FC<BookmarkPanelProps> = ({
 
   const BookTreeRender = () =>
     bookmarks.length > 0 ? (
-      <BookmarkTree bookmarks={bookmarks} />
+      <CollapsibleBookmarkTree bookmarks={bookmarks} />
     ) : searchQuery ? (
       <NoMatch />
     ) : (
