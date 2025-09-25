@@ -3,17 +3,17 @@ import { resolve } from 'node:path'
 import postcss from 'postcss'
 import tailwindcss from 'tailwindcss'
 import autoprefixer from 'autoprefixer'
+import { Plugin } from 'vite'
+import { writeFileSync } from 'node:fs'
 
 const isDev = process.env.NODE_ENV === 'development'
 
-export default function vitePluginContentCss() {
-  const virtualModuleId = 'virtual:content-css'
-  const resolvedVirtualModuleId = '\0' + virtualModuleId
+export default function vitePluginContentCss(): Plugin {
+  let compiledCss: string | null = null
 
+  const targetPath = resolve(process.cwd(), 'dist/src/output.css')
   const cssPath = resolve(process.cwd(), 'src/styles/content.css')
   const tailwindConfigPath = resolve(process.cwd(), 'tailwind.config.js')
-
-  let compiledCss: string | null = null
 
   const genCss = async () => {
     try {
@@ -24,12 +24,14 @@ export default function vitePluginContentCss() {
         autoprefixer(),
       ]).process(cssContent, {
         from: cssPath,
-        to: null,
+        to: targetPath,
       })
       compiledCss = result.css.replace(/:root/g, ':host')
     } catch (error) {
       console.error('Failed to compile CSS:', error)
       compiledCss = ''
+    } finally {
+      writeFileSync(targetPath, compiledCss, 'utf-8')
     }
   }
   return {
@@ -41,19 +43,13 @@ export default function vitePluginContentCss() {
         genCss()
       }
     },
+    async handleHotUpdate(ctx) {
+      // 任何文件变化都重新编译 CSS 以获取最新的类名
+      console.log('File changed, recompiling CSS...')
 
-    resolveId(id: string) {
-      if (id === virtualModuleId) {
-        return resolvedVirtualModuleId
-      }
-    },
-    async load(id: string) {
-      if (id === resolvedVirtualModuleId) {
-        await genCss()
-        return `
-          const compiledCss = ${JSON.stringify(compiledCss || '')};
-          export default compiledCss;`
-      }
+      await genCss()
+
+      return ctx.modules
     },
   }
 }

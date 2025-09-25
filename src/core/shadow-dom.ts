@@ -1,6 +1,6 @@
 import { CONTAINER_CONTAINER_ID } from '../constants'
-// 导入编译后的样式
-import contentStyles from 'virtual:content-css'
+
+let currentStyleElement: HTMLStyleElement | null = null
 
 /**
  * inject styles into the shadow DOM
@@ -10,12 +10,47 @@ export async function injectStyles(styleContainer: ShadowRoot) {
   try {
     const div = document.createElement('div')
     const styleElement = document.createElement('style')
-    console.log('Injecting styles in production mode')
+
+    // 如果已有样式元素，先移除
+    if (currentStyleElement) {
+      currentStyleElement.remove()
+    }
+
     styleContainer.appendChild(div)
     div.appendChild(styleElement)
-    styleElement.textContent = contentStyles
+    currentStyleElement = styleElement
+
+    const response = await fetch(chrome.runtime.getURL('src/output.css'))
+    const css = await response.text()
+    styleElement.textContent = css
+    console.log('Styles injected')
+
+    // 设置 HMR 监听器（只设置一次）
+    if (import.meta.hot) {
+      import.meta.hot.on('vite:beforeUpdate', () => {
+        console.log('Received CSS update event:')
+        // 重新获取并注入样式
+        reloadStyles()
+      })
+    }
   } catch (error) {
     console.error('Failed to inject styles:', error)
+  }
+}
+
+/**
+ * 重新加载样式
+ */
+async function reloadStyles() {
+  try {
+    if (!currentStyleElement) return
+
+    const response = await fetch(chrome.runtime.getURL('src/output.css'))
+    const css = await response.text()
+    currentStyleElement.textContent = css
+    console.log('Styles reloaded successfully')
+  } catch (error) {
+    console.error('Failed to reload styles:', error)
   }
 }
 
@@ -33,7 +68,7 @@ export function createShadowRoot() {
   document.body.appendChild(container)
 
   // 创建Shadow Root
-  const shadowRoot = container.attachShadow({ mode: 'open' })
+  const shadowRoot = container.attachShadow({ mode: 'closed' })
 
   // 创建React根容器
   const reactContainer = document.createElement('div')
