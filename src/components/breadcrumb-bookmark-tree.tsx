@@ -1,10 +1,18 @@
-import { ChevronRight, Folder, Link, Home } from 'lucide-react'
+import { ChevronRight, Folder, Link, Home, Slash } from 'lucide-react'
 import { BookmarkNode } from '@/hooks/useBookmarks'
 import { Button } from '@/components/ui/button'
 import { getFaviconUrl } from '@/core/favicon'
 import { Badge } from './ui/badge'
 import { useState } from 'react'
 import { MESSAGE_ACTIONS } from '../constants'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from './ui/breadcrumb'
+import { ScrollArea } from './ui/scroll-area'
 
 interface BreadcrumbBookmarkTreeProps {
   bookmarks: BookmarkNode[]
@@ -33,13 +41,16 @@ export default function BreadcrumbBookmarkTree({
   const getCurrentLevelNodes = () => {
     if (currentPath.length === 0) {
       // 根目录：过滤掉系统文件夹
-      return bookmarks.filter(
+      const res = bookmarks.filter(
         node =>
           node.title &&
           node.title !== 'Bookmarks bar' &&
           node.title !== 'Other bookmarks'
       )
+
+      return res
     }
+    console.log(111111111, currentNodes)
     return currentNodes
   }
 
@@ -51,6 +62,8 @@ export default function BreadcrumbBookmarkTree({
       ...prev,
       { id: node.id, title: node.title || '未命名文件夹' },
     ])
+    console.log(2222222, node.children)
+
     setCurrentNodes(node.children)
   }
 
@@ -82,89 +95,87 @@ export default function BreadcrumbBookmarkTree({
   return (
     <div className='space-y-3'>
       {/* 面包屑导航 */}
-      <div className='flex items-center gap-1 text-xs text-gray-600 px-2'>
-        <Button
-          variant='ghost'
-          size='sm'
-          className='h-6 px-2 text-xs'
-          onClick={() => navigateToLevel(-1)}
-        >
-          <Home className='w-3 h-3 mr-1' />
-          根目录
-        </Button>
-        {currentPath.map((item, index) => (
-          <div key={item.id} className='flex items-center gap-1'>
-            <ChevronRight className='w-3 h-3 text-gray-400' />
-            <Button
-              variant='ghost'
-              size='sm'
-              className='h-6 px-2 text-xs'
-              onClick={() => navigateToLevel(index)}
-            >
-              {item.title}
-            </Button>
-          </div>
-        ))}
+      <div className='p-[10px]'>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem onClick={() => navigateToLevel(-1)}>
+              <Home className='w-[16px] h-[16px] mr-1' />
+            </BreadcrumbItem>
+            {currentPath.map((item, index) => (
+              <>
+                <BreadcrumbSeparator>
+                  <Slash />
+                </BreadcrumbSeparator>
+                <BreadcrumbItem>
+                  <BreadcrumbLink onClick={() => navigateToLevel(index)}>
+                    {item.title}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+              </>
+            ))}
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
-      {/* 当前层级的书签 */}
-      <div className='space-y-1'>
-        {displayNodes.map(node => (
-          <div
-            key={node.id}
-            className='p-2 rounded-lg hover:bg-gray-50 transition-colors'
-          >
-            {node.url ? (
-              // 书签项
-              <div className='flex items-center gap-2 group'>
-                <img
-                  src={getFaviconUrl(node.url)}
-                  alt=''
-                  className='w-4 h-4 flex-shrink-0'
-                />
-                <div className='flex-1 min-w-0'>
-                  <div
-                    className='text-sm font-medium text-gray-900 hover:text-blue-600 truncate cursor-pointer'
-                    title={node.title || node.url}
-                    onClick={() => openNewTab(node.url)}
+      <ScrollArea className='h-[300px]'>
+        <div className='space-y-1 w-[360px]'>
+          {displayNodes.map(node => (
+            <div
+              key={node.id}
+              className='p-2 rounded-lg hover:bg-gray-50 transition-colors'
+            >
+              {node.url ? (
+                // 书签项
+                <div className='flex items-center gap-2 group'>
+                  <img
+                    src={getFaviconUrl(node.url)}
+                    alt=''
+                    className='w-4 h-4 flex-shrink-0'
+                  />
+                  <div className='flex-1 min-w-0'>
+                    <div
+                      className='text-sm font-medium text-gray-900 hover:text-blue-600 truncate cursor-pointer'
+                      title={node.title || node.url}
+                      onClick={() => openNewTab(node.url)}
+                    >
+                      {node.title || node.url}
+                    </div>
+                    <div className='text-xs text-gray-500 truncate'>
+                      {node.url}
+                    </div>
+                  </div>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    className='opacity-0 group-hover:opacity-100 transition-opacity'
+                    onClick={() => navigator.clipboard.writeText(node.url!)}
+                    title='复制链接'
                   >
-                    {node.title || node.url}
-                  </div>
-                  <div className='text-xs text-gray-500 truncate'>
-                    {node.url}
-                  </div>
+                    <Link className='w-3 h-3' />
+                  </Button>
                 </div>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='opacity-0 group-hover:opacity-100 transition-opacity'
-                  onClick={() => navigator.clipboard.writeText(node.url!)}
-                  title='复制链接'
+              ) : (
+                // 文件夹
+                <div
+                  className='flex items-center gap-2 cursor-pointer'
+                  onClick={() => enterFolder(node)}
                 >
-                  <Link className='w-3 h-3' />
-                </Button>
-              </div>
-            ) : (
-              // 文件夹
-              <div
-                className='flex items-center gap-2 cursor-pointer'
-                onClick={() => enterFolder(node)}
-              >
-                <Folder className='w-4 h-4 text-gray-400' />
-                <span className='text-sm font-medium text-gray-700 flex-1'>
-                  {node.title || '未命名文件夹'}
-                </span>
-                {node.children && node.children.length > 0 && (
-                  <Badge className='text-xs'>
-                    {node.children.filter(child => child.url).length}
-                  </Badge>
-                )}
-                <ChevronRight className='w-4 h-4 text-gray-400' />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+                  <Folder className='w-4 h-4 text-gray-400' />
+                  <span className='text-sm font-medium text-gray-700 flex-1'>
+                    {node.title || '未命名文件夹'}
+                  </span>
+                  {node.children && node.children.length > 0 && (
+                    <Badge className='text-xs'>
+                      {node.children.filter(child => child.url).length}
+                    </Badge>
+                  )}
+                  <ChevronRight className='w-4 h-4 text-gray-400' />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
     </div>
   )
 }

@@ -14,7 +14,7 @@ export const ContentApp: React.FC = () => {
       <DraggableCapsule isExpanded={store.isExpanded}>
         {store.groups.map(g => (
           <BookmarkPanel
-            key={g.main ? 'main' : g.id}
+            key={g.id}
             onClose={store.handleClose}
             bookmarks={g.children || []}
             main={g.main}
