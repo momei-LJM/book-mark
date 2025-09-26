@@ -171,7 +171,7 @@ export default function BreadcrumbBookmarkTree({
         </Breadcrumb>
       </div>
 
-      <ScrollArea className='h-[280px]'>
+      <ScrollArea className='h-[280px] !mt-0'>
         <div className='space-y-1 w-[660px]' ref={listRef}>
           {displayNodes.map((node, idx) => (
             <div
@@ -230,6 +230,9 @@ export default function BreadcrumbBookmarkTree({
           ))}
         </div>
       </ScrollArea>
+      <div>
+        <Badge className='text-xs rounded-[3px]'>111</Badge>
+      </div>
     </div>
   )
 }
