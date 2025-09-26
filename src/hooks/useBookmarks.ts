@@ -8,6 +8,7 @@ export interface BookmarkNode {
   children?: BookmarkNode[]
   dateAdded?: number
   parentId?: string
+  folderType?: string
 }
 export interface UseBookmarksReturn {
   bookmarks: BookmarkNode[]
@@ -74,11 +75,18 @@ export const useBookmarks = () => {
   }
 
   const initBookmarks = async () => {
-    const response = await requestBookmarkTree()
-    Logger.info('Bookmarks fetched successfully', response.bookmarks)
+    const response = (await requestBookmarkTree()) as {
+      bookmarks: BookmarkNode[]
+    }
+    const group = response.bookmarks[0].children?.find(
+      (i: BookmarkNode) => i.folderType === 'bookmarks-bar'
+    )
+    const bookmarks = group?.children || []
+
+    Logger.info('Bookmarks fetched successfully', bookmarks, group)
     if (response && response.bookmarks) {
-      setBookmarks(response.bookmarks as BookmarkNode[])
-      setGroups([{ ...response.bookmarks[0], main: true }])
+      setBookmarks([group] as BookmarkNode[])
+      setGroups([{ ...(group || ({} as BookmarkNode)), main: true }])
       setFlatMarks(
         createdFlatList<BookmarkNode>(response.bookmarks, node => {
           return !!node.url

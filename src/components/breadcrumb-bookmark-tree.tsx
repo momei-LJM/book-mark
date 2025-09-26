@@ -3,7 +3,8 @@ import { BookmarkNode } from '@/hooks/useBookmarks'
 import { Button } from '@/components/ui/button'
 import { getFaviconUrl } from '@/core/favicon'
 import { Badge } from './ui/badge'
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { useHotkeys } from '../hooks/useHotkeys'
 import { MESSAGE_ACTIONS } from '../constants'
 import {
   Breadcrumb,
@@ -42,6 +43,8 @@ export default function BreadcrumbBookmarkTree({
 }: BreadcrumbBookmarkTreeProps) {
   const [currentPath, setCurrentPath] = useState<BreadcrumbItem[]>([])
   const [currentNodes, setCurrentNodes] = useState<BookmarkNode[]>(bookmarks)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const listRef = useRef<HTMLDivElement>(null)
 
   // 获取当前显示的节点（只显示当前层级）
   const getCurrentLevelNodes = () => {
@@ -67,35 +70,78 @@ export default function BreadcrumbBookmarkTree({
       ...prev,
       { id: node.id, title: node.title || '未命名文件夹' },
     ])
-    console.log(2222222, node.children)
-
     setCurrentNodes(node.children)
   }
 
   // 导航到特定层级
-  const navigateToLevel = (index: number) => {
-    if (index === -1) {
-      // 回到根目录
-      setCurrentPath([])
-      setCurrentNodes(bookmarks)
-    } else {
-      // 导航到指定层级
-      const newPath = currentPath.slice(0, index + 1)
-      setCurrentPath(newPath)
+  const navigateToLevel = useCallback(
+    (index: number) => {
+      if (index === -1) {
+        // 回到根目录
+        setCurrentPath([])
+        setCurrentNodes(bookmarks)
+      } else {
+        // 导航到指定层级
+        const newPath = currentPath.slice(0, index + 1)
+        setCurrentPath(newPath)
 
-      // 重新计算当前节点
-      let nodes = bookmarks
-      for (const pathItem of newPath) {
-        const folder = nodes.find(n => n.id === pathItem.id)
-        if (folder?.children) {
-          nodes = folder.children
+        // 重新计算当前节点
+        let nodes = bookmarks
+        for (const pathItem of newPath) {
+          const folder = nodes.find(n => n.id === pathItem.id)
+          if (folder?.children) {
+            nodes = folder.children
+          }
         }
+        setCurrentNodes(nodes)
       }
-      setCurrentNodes(nodes)
-    }
-  }
+    },
+    [bookmarks, currentPath]
+  )
 
   const displayNodes = getCurrentLevelNodes()
+
+  // 使用 useHotkeys 监听上下键和回车
+  const handleHotkey = useCallback(
+    (e: KeyboardEvent) => {
+      if (displayNodes.length === 0) return
+      if (e.key === 'ArrowDown') {
+        setActiveIndex(idx => (idx + 1) % displayNodes.length)
+      } else if (e.key === 'ArrowUp') {
+        setActiveIndex(
+          idx => (idx - 1 + displayNodes.length) % displayNodes.length
+        )
+      } else if (e.key === 'Enter') {
+        const node = displayNodes[activeIndex]
+        if (node.url) {
+          openNewTab(node.url)
+        } else if (node.children) {
+          enterFolder(node)
+          setActiveIndex(0)
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (currentPath.length > 0) {
+          navigateToLevel(currentPath.length - 2)
+          setActiveIndex(0)
+        }
+      }
+    },
+    [displayNodes, activeIndex, currentPath, navigateToLevel]
+  )
+  useHotkeys('up,down,left,enter', handleHotkey)
+
+  // 当 activeIndex 改变时，滚动到对应的元素
+  useEffect(() => {
+    if (listRef.current && displayNodes.length > 0) {
+      const activeElement = listRef.current.children[activeIndex] as HTMLElement
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        })
+      }
+    }
+  }, [activeIndex, displayNodes.length])
 
   return (
     <div className='space-y-3'>
@@ -125,12 +171,12 @@ export default function BreadcrumbBookmarkTree({
         </Breadcrumb>
       </div>
 
-      <ScrollArea className='h-[300px]'>
-        <div className='space-y-1 w-[760px]'>
-          {displayNodes.map(node => (
+      <ScrollArea className='h-[280px]'>
+        <div className='space-y-1 w-[660px]' ref={listRef}>
+          {displayNodes.map((node, idx) => (
             <div
               key={node.id}
-              className='p-2 rounded-lg hover:bg-gray-50 transition-colors'
+              className={`p-2 rounded-lg transition-colors ${activeIndex === idx ? 'bg-gray-100' : 'hover:bg-[#f3f4f6a4]'}`}
             >
               {node.url ? (
                 // 书签项
@@ -155,7 +201,7 @@ export default function BreadcrumbBookmarkTree({
                   <Button
                     variant='ghost'
                     size='sm'
-                    className='opacity-0 group-hover:opacity-100 transition-opacity'
+                    className={`opacity-0 group-hover:opacity-100 transition-opacity ${activeIndex === idx ? 'opacity-100' : ''}`}
                     onClick={() => navigator.clipboard.writeText(node.url!)}
                     title='复制链接'
                   >

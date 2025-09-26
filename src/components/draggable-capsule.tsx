@@ -11,8 +11,8 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
   isExpanded,
   children,
 }) => {
-  const PANEL_W = 420
-  const PANEL_H = 300
+  const PANEL_W = 720
+  const PANEL_H = 530
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - PANEL_W / 2, // 居中
     y: window.innerHeight / 2 - PANEL_H / 2, // 居中
@@ -46,8 +46,6 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
         setPosition({ x: newX, y: newY })
       } else {
         // 拖拽结束时检查边界并回弹
-        const capsuleWidth = 168 // 根据展开状态动态调整宽度
-        const capsuleHeight = 48
         let finalX = position.x
         let finalY = position.y
         let needsBounce = false
@@ -56,8 +54,8 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
         if (position.x < 0) {
           finalX = 0
           needsBounce = true
-        } else if (position.x > window.innerWidth - capsuleWidth) {
-          finalX = window.innerWidth - capsuleWidth
+        } else if (position.x > window.innerWidth - PANEL_W) {
+          finalX = window.innerWidth - PANEL_W
           needsBounce = true
         }
 
@@ -65,8 +63,8 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
         if (position.y < 0) {
           finalY = 0
           needsBounce = true
-        } else if (position.y > window.innerHeight - capsuleHeight) {
-          finalY = window.innerHeight - capsuleHeight
+        } else if (position.y > window.innerHeight - PANEL_H) {
+          finalY = window.innerHeight - PANEL_H
           needsBounce = true
         }
 
@@ -82,7 +80,9 @@ export const DraggableCapsule: React.FC<DraggableCapsuleProps> = ({
     },
     {
       filterTaps: true, // 允许点击事件通过
-      // 移除 bounds 限制，允许在整个屏幕拖拽
+      pointer: {
+        keys: false,
+      },
     }
   )
 

@@ -8,13 +8,18 @@ import { useHotkeys } from '../hooks/useHotkeys'
 export const ContentApp: React.FC = () => {
   const store = useBookmarks()
   useHotkeys(HOT_KEYS, store.togglePanel)
+  useHotkeys('Escape', () => {
+    if (store.isExpanded) {
+      store.handleClose()
+    }
+  })
 
   return (
     <StoreContext value={store}>
       <DraggableCapsule isExpanded={store.isExpanded}>
         {store.groups.map(g => (
           <BookmarkPanel
-            key={g.id}
+            key='main'
             onClose={store.handleClose}
             bookmarks={g.children || []}
             main={g.main}
