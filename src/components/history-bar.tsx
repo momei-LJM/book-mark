@@ -1,5 +1,7 @@
 import React from 'react'
 
-export default function HistoryBar(): React.FC {
+const HistoryBar: React.FC<Element> = () => {
   return <div>HistoryBar</div>
 }
+
+export default HistoryBar

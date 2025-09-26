@@ -4,6 +4,7 @@ import { BookmarkPanel } from './bookmark-panel'
 import { DraggableCapsule } from './draggable-capsule'
 import { HOT_KEYS } from '../constants'
 import { useHotkeys } from '../hooks/useHotkeys'
+import { useDocFocus } from '../hooks/useDocFocus'
 
 export const ContentApp: React.FC = () => {
   const store = useBookmarks()
@@ -13,6 +14,7 @@ export const ContentApp: React.FC = () => {
       store.handleClose()
     }
   })
+  useDocFocus()
 
   return (
     <StoreContext value={store}>

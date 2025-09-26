@@ -9,6 +9,7 @@ export interface BookmarkNode {
   dateAdded?: number
   parentId?: string
   folderType?: string
+  visitCount?: number // 访问次数
 }
 export interface UseBookmarksReturn {
   bookmarks: BookmarkNode[]
@@ -25,6 +26,9 @@ export interface UseBookmarksReturn {
   isExpanded: boolean
   togglePanel: () => void
   handleClose: () => void
+  sortBookmarks: (nodes: BookmarkNode[]) => BookmarkNode[] // 排序书签方法
+  incrementVisitCount: (id: string) => void // 增加访问次数
+  getVisitCount: (id: string) => number // 获取访问次数
 }
 
 interface TGroup extends BookmarkNode {
@@ -46,6 +50,90 @@ export const useBookmarks = () => {
 
   const handleClose = useCallback(() => {
     setIsVisible(false)
+  }, [])
+
+  // 本地存储键名
+  const VISIT_COUNT_KEY = 'bookmark_visit_counts'
+
+  // 获取访问次数数据
+  const getVisitCounts = useCallback(() => {
+    try {
+      const stored = localStorage.getItem(VISIT_COUNT_KEY)
+      return stored ? JSON.parse(stored) : {}
+    } catch {
+      return {}
+    }
+  }, [])
+
+  // 保存访问次数数据
+  const saveVisitCounts = useCallback((counts: Record<string, number>) => {
+    try {
+      localStorage.setItem(VISIT_COUNT_KEY, JSON.stringify(counts))
+    } catch (error) {
+      Logger.error('Failed to save visit counts:', error)
+    }
+  }, [])
+
+  // 获取单个书签的访问次数
+  const getVisitCount = useCallback(
+    (id: string): number => {
+      const counts = getVisitCounts()
+      return counts[id] || 0
+    },
+    [getVisitCounts]
+  )
+
+  // 增加访问次数
+  const incrementVisitCount = useCallback(
+    (id: string) => {
+      const counts = getVisitCounts()
+      counts[id] = (counts[id] || 0) + 1
+      saveVisitCounts(counts)
+
+      // 更新内存中的书签数据
+      const updateVisitCount = (nodes: BookmarkNode[]): BookmarkNode[] => {
+        return nodes.map(node => {
+          if (node.id === id) {
+            return { ...node, visitCount: counts[id] }
+          }
+          if (node.children) {
+            return { ...node, children: updateVisitCount(node.children) }
+          }
+          return node
+        })
+      }
+
+      setBookmarks(prev => updateVisitCount(prev))
+    },
+    [getVisitCounts, saveVisitCounts]
+  )
+
+  // 对书签数据进行排序，文件夹优先前置
+  const sortBookmarks = useCallback((nodes: BookmarkNode[]): BookmarkNode[] => {
+    return [...nodes]
+      .map(node => ({
+        ...node,
+        children: node.children ? sortBookmarks(node.children) : undefined,
+      }))
+      .sort((a, b) => {
+        // 文件夹（没有 url）排在前面
+        const aIsFolder = !a.url
+        const bIsFolder = !b.url
+
+        if (aIsFolder && !bIsFolder) return -1
+        if (!aIsFolder && bIsFolder) return 1
+
+        // 同类型的情况下，按访问次数排序（书签），或按字母顺序排序（文件夹）
+        if (!aIsFolder && !bIsFolder) {
+          // 都是书签，按访问次数降序排序
+          const aCount = a.visitCount || 0
+          const bCount = b.visitCount || 0
+          if (aCount !== bCount) return bCount - aCount
+        }
+
+        // 按标题字母顺序排序
+        return (a.title || '').localeCompare(b.title || '')
+      })
   }, [])
 
   // 当前面板id链
@@ -74,7 +162,7 @@ export const useBookmarks = () => {
     setGroups(prev => prev.filter(c => c.id !== id))
   }
 
-  const initBookmarks = async () => {
+  const initBookmarks = useCallback(async () => {
     const response = (await requestBookmarkTree()) as {
       bookmarks: BookmarkNode[]
     }
@@ -84,9 +172,30 @@ export const useBookmarks = () => {
     const bookmarks = group?.children || []
 
     Logger.info('Bookmarks fetched successfully', bookmarks, group)
+
     if (response && response.bookmarks) {
-      setBookmarks([group] as BookmarkNode[])
-      setGroups([{ ...(group || ({} as BookmarkNode)), main: true }])
+      // 加载访问次数数据
+      const visitCounts = getVisitCounts()
+
+      // 为书签添加访问次数
+      const addVisitCounts = (nodes: BookmarkNode[]): BookmarkNode[] => {
+        return nodes.map(node => {
+          const visitCount = visitCounts[node.id] || 0
+          const updatedNode = { ...node, visitCount }
+          if (updatedNode.children) {
+            updatedNode.children = addVisitCounts(updatedNode.children)
+          }
+          return updatedNode
+        })
+      }
+
+      const bookmarksWithVisits = addVisitCounts([group] as BookmarkNode[])
+      // 对书签数据进行排序，文件夹优先前置（递归排序所有层级）
+      const sortedBookmarks = sortBookmarks(bookmarksWithVisits)
+      setBookmarks(sortedBookmarks)
+      setGroups([
+        { ...(sortedBookmarks[0] || ({} as BookmarkNode)), main: true },
+      ])
       setFlatMarks(
         createdFlatList<BookmarkNode>(response.bookmarks, node => {
           return !!node.url
@@ -94,11 +203,11 @@ export const useBookmarks = () => {
       )
     }
     setIsLoading(false)
-  }
+  }, [getVisitCounts, sortBookmarks])
 
   useEffect(() => {
     initBookmarks()
-  }, [])
+  }, [initBookmarks])
 
   // 统计信息
   const stats = useMemo(() => {
@@ -175,7 +284,7 @@ export const useBookmarks = () => {
 
       setGroups([{ ...bookmarks[0], main: true }])
     }
-  }, [filteredBookmarks, searchQuery])
+  }, [filteredBookmarks, searchQuery, bookmarks])
   return {
     originalBookmarks: bookmarks,
     bookmarks: filteredBookmarks,
@@ -189,7 +298,9 @@ export const useBookmarks = () => {
     removeGroup,
     onAddGroup: addGroup,
     onRemoveGroup: removeGroup,
-
+    sortBookmarks,
+    incrementVisitCount,
+    getVisitCount,
     isExpanded: isVisible,
     togglePanel,
     handleClose,

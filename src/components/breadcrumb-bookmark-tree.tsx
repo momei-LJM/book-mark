@@ -230,9 +230,6 @@ export default function BreadcrumbBookmarkTree({
           ))}
         </div>
       </ScrollArea>
-      <div>
-        <Badge className='text-xs rounded-[3px]'>111</Badge>
-      </div>
     </div>
   )
 }
