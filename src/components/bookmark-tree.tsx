@@ -1,4 +1,4 @@
-import { Folder, Link } from 'lucide-react'
+import { Link } from 'lucide-react'
 import { BookmarkNode } from '@/hooks/useBookmarks'
 import { Button } from '@/components/ui/button'
 import { getFaviconUrl } from '@/core/favicon'
@@ -23,6 +23,11 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
     nodes: BookmarkNode[],
     level = 0
   ): React.JSX.Element[] => {
+    const Folder = ({ className }: { className?: string }) => (
+      <>
+        <img src='/icons/folder.png' alt='' className={className} />
+      </>
+    )
     return nodes
       .flatMap(node => {
         // 跳过根级别的默认文件夹
@@ -71,6 +76,7 @@ export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
                 onMouseEnter={() => onAddGroup(node.id, node.parentId)}
               >
                 <Folder className='w-4 h-4 text-gray-400' />
+                111
                 <span className='text-sm font-medium text-gray-700'>
                   {node.title || '未命名文件夹'}
                 </span>

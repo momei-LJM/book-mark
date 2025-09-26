@@ -1,4 +1,4 @@
-import { ChevronRight, Folder, Link, Home, Slash } from 'lucide-react'
+import { ChevronRight, Link, Home, Slash } from 'lucide-react'
 import { BookmarkNode } from '@/hooks/useBookmarks'
 import { Button } from '@/components/ui/button'
 import { getFaviconUrl } from '@/core/favicon'
@@ -30,7 +30,13 @@ const openNewTab = (url?: string) => {
     url,
   })
 }
-
+const Folder = ({ className }: { className?: string }) => {
+  const src =
+    typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL
+      ? chrome.runtime.getURL('icons/folder.png')
+      : '/icons/folder.png'
+  return <img src={src} alt='' className={className} />
+}
 export default function BreadcrumbBookmarkTree({
   bookmarks,
 }: BreadcrumbBookmarkTreeProps) {
@@ -50,7 +56,6 @@ export default function BreadcrumbBookmarkTree({
 
       return res
     }
-    console.log(111111111, currentNodes)
     return currentNodes
   }
 
@@ -98,7 +103,10 @@ export default function BreadcrumbBookmarkTree({
       <div className='p-[10px]'>
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem onClick={() => navigateToLevel(-1)}>
+            <BreadcrumbItem
+              className='cursor-pointer'
+              onClick={() => navigateToLevel(-1)}
+            >
               <Home className='w-[16px] h-[16px] mr-1' />
             </BreadcrumbItem>
             {currentPath.map((item, index) => (
@@ -106,7 +114,7 @@ export default function BreadcrumbBookmarkTree({
                 <BreadcrumbSeparator>
                   <Slash />
                 </BreadcrumbSeparator>
-                <BreadcrumbItem>
+                <BreadcrumbItem className='cursor-pointer'>
                   <BreadcrumbLink onClick={() => navigateToLevel(index)}>
                     {item.title}
                   </BreadcrumbLink>
@@ -118,7 +126,7 @@ export default function BreadcrumbBookmarkTree({
       </div>
 
       <ScrollArea className='h-[300px]'>
-        <div className='space-y-1 w-[360px]'>
+        <div className='space-y-1 w-[760px]'>
           {displayNodes.map(node => (
             <div
               key={node.id}
@@ -160,12 +168,12 @@ export default function BreadcrumbBookmarkTree({
                   className='flex items-center gap-2 cursor-pointer'
                   onClick={() => enterFolder(node)}
                 >
-                  <Folder className='w-4 h-4 text-gray-400' />
+                  <Folder className='w-[24px]' />
                   <span className='text-sm font-medium text-gray-700 flex-1'>
                     {node.title || '未命名文件夹'}
                   </span>
                   {node.children && node.children.length > 0 && (
-                    <Badge className='text-xs'>
+                    <Badge className='text-xs rounded-[3px]'>
                       {node.children.filter(child => child.url).length}
                     </Badge>
                   )}

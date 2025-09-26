@@ -31,7 +31,7 @@ export const BookmarkPanel: React.FC<BookmarkPanelProps> = ({
     )
 
   return (
-    <div className='w-96 bg-white border border-gray-300 rounded-lg shadow-lg max-h-[450px] h-[450px] overflow-hidden'>
+    <div className='w-[800px] bg-white border border-gray-300 rounded-lg shadow-lg max-h-[450px] h-[450px] overflow-hidden'>
       {main ? (
         <>
           <Statistics statistic={statistic} />

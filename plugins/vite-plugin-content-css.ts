@@ -43,7 +43,12 @@ export default function vitePluginContentCss(): Plugin {
         genCss()
       }
     },
+    configureServer() {
+      genCss()
+    },
     async handleHotUpdate(ctx) {
+      // 这里不能发送自定义hmr消息，因为被crxjs过滤掉了
+      // 所以自能走通用的hmr生命周期
       // 任何文件变化都重新编译 CSS 以获取最新的类名
       console.log('File changed, recompiling CSS...')
 
