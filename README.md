@@ -28,7 +28,7 @@
 
 ### 基本操作
 
-- **打开扩展**：command + option + c / control + alt + c
+- **打开扩展**：command + shit + b / control + shit + b
 - **导航书签**：使用 ↑↓ 箭头键在书签间移动
 - **进入文件夹**：按 Enter 键进入选中的文件夹
 - **返回上级**：按 ← 键返回上级目录
