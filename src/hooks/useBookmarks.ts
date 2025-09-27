@@ -163,9 +163,125 @@ export const useBookmarks = () => {
   }
 
   const initBookmarks = useCallback(async () => {
-    const response = (await requestBookmarkTree()) as {
-      bookmarks: BookmarkNode[]
+    // Mock data for demonstration
+    const USE_MOCK = false
+    const mockResponse = {
+      bookmarks: [
+        {
+          id: '0',
+          title: '',
+          children: [
+            {
+              id: '1',
+              title: 'Bookmarks bar',
+              folderType: 'bookmarks-bar',
+              children: [
+                {
+                  id: '2',
+                  title: 'Google',
+                  url: 'https://www.google.com',
+                  dateAdded: Date.now() - 86400000 * 30, // 30 days ago
+                  visitCount: 150,
+                },
+                {
+                  id: '3',
+                  title: 'GitHub',
+                  url: 'https://github.com',
+                  dateAdded: Date.now() - 86400000 * 20,
+                  visitCount: 200,
+                },
+                {
+                  id: '4',
+                  title: 'Work',
+                  children: [
+                    {
+                      id: '5',
+                      title: 'Company Site',
+                      url: 'https://company.com',
+                      dateAdded: Date.now() - 86400000 * 10,
+                      visitCount: 50,
+                    },
+                    {
+                      id: '6',
+                      title: 'Project Docs',
+                      url: 'https://docs.company.com',
+                      dateAdded: Date.now() - 86400000 * 5,
+                      visitCount: 30,
+                    },
+                  ],
+                },
+                {
+                  id: '7',
+                  title: 'Social',
+                  children: [
+                    {
+                      id: '8',
+                      title: 'Twitter',
+                      url: 'https://twitter.com',
+                      dateAdded: Date.now() - 86400000 * 15,
+                      visitCount: 80,
+                    },
+                    {
+                      id: '9',
+                      title: 'LinkedIn',
+                      url: 'https://linkedin.com',
+                      dateAdded: Date.now() - 86400000 * 12,
+                      visitCount: 60,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: '10',
+              title: 'Other bookmarks',
+              children: [
+                {
+                  id: '11',
+                  title: 'YouTube',
+                  url: 'https://youtube.com',
+                  dateAdded: Date.now() - 86400000 * 25,
+                  visitCount: 120,
+                },
+                {
+                  id: '12',
+                  title: 'Reddit',
+                  url: 'https://reddit.com',
+                  dateAdded: Date.now() - 86400000 * 18,
+                  visitCount: 90,
+                },
+                {
+                  id: '13',
+                  title: 'Entertainment',
+                  children: [
+                    {
+                      id: '14',
+                      title: 'Netflix',
+                      url: 'https://netflix.com',
+                      dateAdded: Date.now() - 86400000 * 8,
+                      visitCount: 40,
+                    },
+                    {
+                      id: '15',
+                      title: 'Spotify',
+                      url: 'https://spotify.com',
+                      dateAdded: Date.now() - 86400000 * 7,
+                      visitCount: 35,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
     }
+
+    const response = USE_MOCK
+      ? mockResponse
+      : ((await requestBookmarkTree()) as {
+          bookmarks: BookmarkNode[]
+        })
     const group = response.bookmarks[0].children?.find(
       (i: BookmarkNode) => i.folderType === 'bookmarks-bar'
     )
